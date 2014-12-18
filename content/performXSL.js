@@ -1,21 +1,3 @@
-/*
-Copyright 2007, 2008, 2009 Brett Zamir
-    This file is part of XSL Results.
-
-    XSL Results is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    XSL Results is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with XSL Results.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 (function () {
 
 var Cc = Components.classes;
@@ -58,30 +40,7 @@ var performXSL = {
         // the path may use forward slash ('/') as the delimiter
         this.extdir = this.em.getInstallLocation(this.extid);
         this.OS = this.searchString(this.dataOS);
-        this.OSfile_slash = (this.OS === 'Windows') ? '\\' : '/'; // The following doesn't seem to auto-convert forward slashes to backslashes, so this is needed (though why was there no problem in overlay.js for Windows before? Probably since was only being used there for Java)
-    },
-    javaenabled : function () {
-        var pluginDetected = false;
-        if (navigator.mimeTypes) {
-               for (var i=0; i < navigator.mimeTypes.length; i++) {
-                      if(
-                         (navigator.mimeTypes[i].type != null) &&
-                                  (navigator.mimeTypes[i].type.indexOf('application/x-java-applet') !== -1) ) { // ;jpi-version=1.6
-                         pluginDetected = true;
-                         break;
-                      }
-               }
-        }
-        if (!navigator.javaEnabled()) {
-              alert(this.branch.getComplexValue('enable_java_error', Ci.nsIPrefLocalizedString).data);
-              return false;
-        }
-        else if (!pluginDetected) {
-              alert(this.branch.getComplexValue('install_java_error', Ci.nsIPrefLocalizedString).data);
-              window.open('http://www.java.com/en/download/');
-              return false;
-        }
-        return true;
+        this.OSfile_slash = (this.OS === 'Windows') ? '\\' : '/'; // The following doesn't seem to auto-convert forward slashes to backslashes, so this is needed
     },
     getWindowContent : function (win) {
         // NOTE: I changed to window.opener below as this will work from window (and also seems to work fine even from main extension overlay)
@@ -274,11 +233,6 @@ var performXSL = {
         var filepath = this.writeFile(content, ext);
         var win = window.open(filepath, 'xslresultswin',
                                                             'menubar=yes,location=yes,status=yes,resizable,scrollbars,minimizable'); // chrome
-/*        var doc = win.document;
-            doc.open();
-            doc.writeln(content3);
-            doc.close();
-            */
     },
     // fix: add use?
     testwellformed: function(xmldoc) {
@@ -502,23 +456,6 @@ var performXSL = {
             }
             if (!engineUndefined) {
                   data = this.getWindowInfo(data, newDocument.contentType).content;
-            }
-        }
-        else if (enginetype === 0) { // Saxon
-
-//Todo:
-// 1) Detect output method?
-            try {
-                var SaxonWrapper = this.loader_saxon.loadClass('SaxonWrapper');
-                var sw = SaxonWrapper.newInstance();
-                //data = sw.xform(xsltext, xmltext, 'html');
-                var serializ = new XMLSerializer();
-                stylesh = serializ.serializeToString(stylesh);
-                data = sw.xform(stylesh, xmldata, method); // 'html'
-                //alert(ee);
-            }
-            catch (e) {
-            //alert(e);
             }
         }
         var outputext = this.branch.getComplexValue('outputext', Ci.nsIPrefLocalizedString).data;

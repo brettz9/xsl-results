@@ -1,21 +1,3 @@
-/*
-Copyright 2007, 2008, 2009 Brett Zamir
-    This file is part of XSL Results.
-
-    XSL Results is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    XSL Results is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with XSL Results.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 (function () {
 
 var Cc = Components.classes;
@@ -56,11 +38,6 @@ var xslresults = {
         this.OS = this.performXSL.OS;
         this.OSfile_slash = this.performXSL.OSfile_slash;
 
-//    this.OS = this.searchString(this.dataOS);
-//    this.OSfile_slash = (this.OS === 'Windows') ? '\\' : '/'; // The following doesn't seem to auto-convert forward slashes to backslashes, so this is needed (though why is there no problem in overlay.js for Windows? Probably since only being used there for Java)
-//    var path = Cc['@mozilla.org/file/directory_service;1'].getService( Ci.nsIProperties).get('ProfD', Ci.nsIFile).path; // Get path to user profile folder
-//    var extpath = path+this.OSfile_slash+'extensions'+this.OSfile_slash+'xslresults@brett.zamir'+this.OSfile_slash;
-
         // From http://developer.mozilla.org/en/docs/Code_snippets:File_I/O
         this.extid = 'xslresults@brett.zamir'; // the extension's id from install.rdf
         var em = Cc['@mozilla.org/extensions/manager;1'].getService(Ci.nsIExtensionManager);
@@ -71,75 +48,10 @@ var xslresults = {
         this.prefs = this.performXSL.prefs;
         // This branch must be set in both the properties file and prefs js file: http://developer.mozilla.org/en/docs/Code_snippets:Preferences#nsIPrefLocalizedString
         this.branch = this.performXSL.branch;
-        // if (this.OS) {
-          /* Since hard-wiring now, don't need preferences (also ensures if migrating a profile, that it will still work on a different machine
-                var Saxonjardirtype = '0jardir'; // '0jardir_'+this.OS;
-        var Saxonjardir = this.branch.getComplexValue(Saxonjardirtype,
-                        Ci.nsIPrefLocalizedString).data;
-        if (Saxonjardir == '' || Saxonjardir == ' ') {
-            var temp = Cc['@mozilla.org/pref-localizedstring;1']
-                    .createInstance(Ci.nsIPrefLocalizedString);
-            temp.data = this.getUrlSpec('Saxon');
-            this.prefs.setComplexValue('extensions.xslresults.'+Saxonjardirtype, Ci.nsIPrefLocalizedString, temp);
-            Saxonjardir = temp.data;
-        }
-        if (Saxonjardir.indexOf('file:///') !== 0) {
-            Saxonjardir = 'file:///'+Saxonjardir;
-        }
-        */
-        var saxon_load_complete = true;
-//        var Saxonjardir_substr = Saxonjardir.substring(8);
-        var saxonjardir = this.extdir.getItemFile(this.extid, 'Saxon');
-        if (saxonjardir.exists()) {
-            var saxonjarfile = this.extdir.getItemFile(this.extid, 'Saxon/SaxonWrapper.jar');
-            if (saxonjarfile.exists()) {
-                var saxonjar = this.getUrlSpec('Saxon/SaxonWrapper.jar'); // extpath+'Saxon'+this.OSfile_slash+'SaxonWrapper.jar';
-                fURL[0] = new java.net.URL(saxonjar);
-                var URLstocycle = ['saxon9.jar', 'saxon9-dom4j.jar', 'saxon9-dom.jar', 'saxon9-jdom.jar', 'saxon9-s9api.jar', 'saxon9-sql.jar', 'saxon9-xom.jar', 'saxon9-xpath.jar', 'saxon9-xqj.jar'];
-                var tempjar;
-                for (var i=0; i < URLstocycle.length; i++) {
-                    tempjar = this.extdir.getItemFile(this.extid, 'Saxon/'+URLstocycle[i]);
-                    if (tempjar.exists()) {
-                        fURL[i+1] = new java.net.URL(this.getUrlSpec('Saxon/'+URLstocycle[i]));
-                    }
-                    else {
-                        alert(this.strbundle.getString('extensions.xslresults.filenotfound')+' '+tempjar.path);
-                        saxon_load_complete = false;
-                        break;
-                    }
-                }
-            }
-            else {
-                alert(this.strbundle.getString('extensions.xslresults.filenotfound')+' '+saxonjarfile.path);
-                saxon_load_complete = false;
-            }
-        }
-        else {
-            if (this.prefs.getIntPref('extensions.xslresults.enginetype') === 0) {
-                alert(this.strbundle.getString('extensions.xslresults.dirnotfound')+' '+saxonjardir.path);
-            }
-            saxon_load_complete = false;
-        }
+
+
         this.fURL = null;
-        if (saxon_load_complete) {
-            fURL[i+1] = new java.net.URL(this.getUrlSpec('utils/firefoxClassLoader.jar'));
-//            fURL = this.toUrlArray(fURL);
-            this.xslresults_loader_saxon = new java.net.URLClassLoader(fURL);
-            this.fURL = fURL;
-        }
-        else {
-            this.xslresults_loader_saxon = false;
-        }
-    /*
-    }
-    else {
-        alert(this.strbundle.getString('extensions.xslresults.unrecognizedOS'+': '+navigator.platform));
-        return;
-    }
-  */
 
-
-        this.performXSL.loader_saxon = this.xslresults_loader_saxon;
         this.startLoadListeners();
     },
     docEvaluateArray : function (expr, doc, context, resolver) {
@@ -239,7 +151,7 @@ var xslresults = {
                                             }
                                         };
 
-                                        that.performXSL.finish(stylesheet, buf, cb2, 0); // 0 is Saxon, 1 is Transformiix
+                                        that.performXSL.finish(stylesheet, buf, cb2, 1); // 1 is Transformiix
                                     };
                                     that.performXSL.getPrestyleDoc(absHref, null, null, 'UTF-8', cb1, true);
                                 }
@@ -285,37 +197,6 @@ var xslresults = {
         var url = ios.newFileURI(file);
         return url.spec;
     },
-/*
- toUrlArray : function(a) { // from http://simile.mit.edu/repository/java-firefox-extension/firefox/chrome/content/scripts/browser-overlay.js
-    var urlArray = java.lang.reflect.Array.newInstance(java.net.URL, a.length);
-    for (var i = 0; i < a.length; i++) {
-        var url = a[i];
-        java.lang.reflect.Array.set(
-            urlArray,
-            i,
-            (typeof url == 'string') ? new java.net.URL(url) : url
-        );
-    }
-    return urlArray;
-  },
-*/
-    policyAdd : function (loader, urls) {
-        // The following code was adapted from http://simile.mit.edu/wiki/Java_Firefox_Extension
-        //var bootstrapClassLoader = java.net.URLClassLoader.newInstance([ firefoxClassLoaderURL ]);
-        var policyClass = java.lang.Class.forName(
-            'edu.mit.simile.firefoxClassLoader.URLSetPolicy',
-            true,
-            loader
-        );
-        var policy = policyClass.newInstance();
-        policy.setOuterPolicy(java.security.Policy.getPolicy());
-        java.security.Policy.setPolicy(policy);
-        policy.addPermission(new java.security.AllPermission());
-
-        for (var j=0; j < urls.length; j++) {
-            policy.addURL(urls[j]);
-        }
-    },
     openXSLWindow : function () {
         this.onMenuItemCommand();
     },
@@ -354,20 +235,8 @@ var xslresults = {
     onViewResultantTransformiixSource : function () {
         this.onViewResultantSource(1);
     },
-    onViewResultantSaxonSource : function () {
-        if(!this.performXSL.javaenabled()) {
-          return;
-        }
-        this.onViewResultantSource(0);
-    },
     onViewResultantTransformiixSourceTextBox : function () {
         this.onViewResultantSource(1, true);
-    },
-    onViewResultantSaxonSourceTextBox : function () {
-        if(!this.performXSL.javaenabled()) {
-            return;
-        }
-        this.onViewResultantSource(0, true);
     },
     onViewResultantSource : function (enginetype, textbox) {
         var that = this;
@@ -435,7 +304,7 @@ var xslresults = {
                     }
                 };
 
-                that.performXSL.finish(stylesheet, buf, cb2, enginetype); // 0 is Saxon, 1 is Transformiix
+                that.performXSL.finish(stylesheet, buf, cb2, enginetype); // 1 is Transformiix
             };
             if (stylesheetURL) {
                 this.performXSL.getPrestyleDoc(stylesheetURL, null, null, 'UTF-8', cb1, true);
@@ -451,41 +320,14 @@ var xslresults = {
     onViewResultantSourceTextbox: function(e) {
         var wininfo = this.performXSL.getWindowContent(window);
         var data = wininfo.content;
-        /* in Java code, use getUnderlyingCompiledStylesheet() on XsltExecutable and then getOutputProperties() to find out xsl:output
-        var xslt2re = /<\?xml-stylesheet[^>]*type="application\/xslt\+xml"[^>]*\?>/g;
-        var xslt2prinsts = data.match(xslt2re);
-        if (xslt2prinsts !== null) {
-            for (var i=0; i < xslt2prinsts.length; i++) {
-                if (this.loader_saxon && furl) {
-                    this.policyAdd(this.xslresults_loader_saxon, this.fURL);
-
-                    alert(xslt2prinsts[i]);
-
-                    try {
-                        var SaxonWrapper = this.xslresults_loader_saxon.loadClass('SaxonWrapper');
-                        var sw = SaxonWrapper.newInstance();
-                        var serializ = new XMLSerializer();
-                        stylesh = serializ.serializeToString(stylesh);
-                        data = sw.xform(stylesh, xmldata, method); // 'html'
-                    }
-                    catch (e) {
-                    }
-                }
-            }
-        }
-        //*/
-        /*
-        ('chrome://xquseme/content/querydialog.xul', 'xsl-win', 'chrome, resizable, scrollbars, minimizable, centerscreen');
-        win.focus();
-        */
+        
         var win = window.openDialog(); // plain window.open doesn't work right
         var doc = win.document;
         doc.open();
         // <?xml-stylesheet type="application/xslt+xml" href="xsl.xsl" ?>
 
         // '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Output</title></head>' +
-        data = '<textarea cols="100%" rows="40">'+data+'</textarea>';
-        // + '</body></html>';
+        data = '<textarea cols="100%" rows="40">' + data + '</textarea>';
         doc.writeln(data);
         doc.close();
     },
@@ -494,9 +336,6 @@ var xslresults = {
         BrowserViewSourceOfDocument(content.document);
     },
     onMenuItemCommand: function(e) {
-        if(!this.performXSL.javaenabled()) {
-            return;
-        }
         // Open and focus on query window, sending the current document and the URL Class loader data
         var wininfo = this.performXSL.getWindowContent(window);
         var ctype = wininfo.ctype;
@@ -504,7 +343,7 @@ var xslresults = {
         var data = wininfo.content;
 
         var xsldialog = window.openDialog('chrome://xslresults/content/getxsldata.xul', 'getxsldata',
-                 'chrome, resizable, scrollbars, minimizable', /* centerscreen,  */ data, this.xslresults_loader_saxon,
+                 'chrome, resizable, scrollbars, minimizable', /* centerscreen,  */ data, null /* todo: remove; no longer in use*/,
                  this.fURL, ctype, conttype);
         xsldialog.focus();
     },

@@ -1,21 +1,3 @@
-/*
-Copyright 2007, 2008, 2009 Brett Zamir
-    This file is part of XSL Results.
-
-    XSL Results is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    XSL Results is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with XSL Results.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 
@@ -333,7 +315,7 @@ var executeXSL = {
         this.populateSitePrefBoxes(t);
     },      
     p: function(str) {
-        java.lang.System.out.println(str);
+        console.log(str);
     },
     onLoad: function(e) {
         var that = this;
@@ -390,11 +372,6 @@ var executeXSL = {
             $('outputext').disabled = true;
         }
 
-        // this.OS = this.searchString(this.dataOS);
-        // this.OSfile_slash = (this.OS === 'Windows') ? '\\' : '/'; // The following doesn't seem to auto-convert forward slashes to backslashes, so this is needed (though why is there no problem in overlay.js for Windows? Probably since only being used there for Java)
-        // this.path = Cc['@mozilla.org/file/directory_service;1'].getService( Ci.nsIProperties).get('ProfD', Ci.nsIFile).path; // Get path to user profile folder
-        //this.extpath = this.path+this.OSfile_slash+'extensions'+this.OSfile_slash+'xslresults@brett.zamir'+this.OSfile_slash;
-
         // From http://developer.mozilla.org/en/docs/Code_snippets:File_I/O
         this.extid = 'xslresults@brett.zamir'; // the extension's id from install.rdf
         var em = Cc['@mozilla.org/extensions/manager;1'].
@@ -402,27 +379,8 @@ var executeXSL = {
         // the path may use forward slash ('/') as the delimiter
         this.extdir = em.getInstallLocation(this.extid);
 
-        //alert(this.extdir.getItemFile(this.extid, 'SaxonWrapper').exists()); // gives nsIFile
-
         $('helppanel').setAttribute('src', this.getUrlSpec('readme.xhtml'));
 
-        // Fix: Could get rid of this OS detection code
-
-        /* Since hard-wiring now, don't need preferences (also ensures if migrating a profile, that it will still work on a different machine */
-        /*
-        var Saxonjardirtype = '0jardir_'+this.OS;
-
-        var Saxonjardir = this.branch.getComplexValue(Saxonjardirtype,
-                        Ci.nsIPrefLocalizedString).data;
-        if (Saxonjardir == '' || Saxonjardir == ' ') {
-            var temp = Cc['@mozilla.org/pref-localizedstring;1']
-                    .createInstance(Ci.nsIPrefLocalizedString);
-            temp.data = this.getUrlSpec('SaxonWrapper'); // this.extpath+'SaxonWrapper'+this.OSfile_slash;
-            this.prefs.setComplexValue('extensions.xslresults.'+Saxonjardirtype, Ci.nsIPrefLocalizedString, temp);
-            Saxonjardir = temp.data;
-        }
-        $('SaxonJarfiles').value = Saxonjardir;
-        */
         this.processDTD(ctype);
                 
         var defaultxsl = this.branch.getComplexValue('defaultxsl', Ci.nsIPrefLocalizedString).data;
@@ -445,13 +403,6 @@ var executeXSL = {
 
         var ctype = window.arguments[3];
         var contenttype = window.arguments[4]; // Not really needed
-
-        this.performXSL.loader_saxon = window.arguments[1];
-        var furl = window.arguments[2];
-
-        if (this.performXSL.loader_saxon && furl) {
-            this.policyAdd(this.performXSL.loader_saxon, furl);
-        }
 
         this.strbundle = $('xslresults-strings');
                 
@@ -578,74 +529,31 @@ var executeXSL = {
         xmlbox = xmlbox.replace(/<!DOCTYPE[^>\[]*\[[^\]]*\]>/g, '');
         $('xmlcontent').value = xmlbox.replace(/<!DOCTYPE[^>]*>/g, '');
     },
-    policyAdd : function (loader, urls) {
-        // The following code was adapted from http://simile.mit.edu/wiki/Java_Firefox_Extension
-        //var bootstrapClassLoader = java.net.URLClassLoader.newInstance([ firefoxClassLoaderURL ]);
-        var policyClass = java.lang.Class.forName(
-            'edu.mit.simile.firefoxClassLoader.URLSetPolicy',
-            true,
-            loader
-        );
-        var policy = policyClass.newInstance();
-        policy.setOuterPolicy(java.security.Policy.getPolicy());
-        java.security.Policy.setPolicy(policy);
-        policy.addPermission(new java.security.AllPermission());
-
-        for (var j=0; j < urls.length; j++) {
-            policy.addURL(urls[j]);
-        }
-    },
-    /*/
-    jarchange : function(e) {
-        var temp1 = Cc['@mozilla.org/pref-localizedstring;1']
-                    .createInstance(Ci.nsIPrefLocalizedString);
-        temp1.data = e.target.value;
-        // extensions.xslresults.0jardir_Windows
-        if (e.target.val == undefined) { // If not set in JS, then get value from XUL
-            e.target.val = e.target.getAttribute('val');
-        }
-
-        this.prefs.setComplexValue('extensions.xslresults.'+e.target.val+'jardir_'+this.OS,
-                      Ci.nsIPrefLocalizedString, 
-                      temp1);
-
-        if (!e.target.notrigger) { // Used in JS above
-            var c = confirm(this.strbundle.getString('extensions.xslresults.restartjarchange'));
-            if (c) {
-                var startup = Ci.nsIAppStartup;
-                Cc['@mozilla.org/toolkit/app-startup;1'].getService(startup).quit(startup.eRestart | startup.eAttemptQuit);
-            }
-        }
-    },
-    */
     converttohtml : function() { // No longer needed since converted in overlay.js
-        var windowcode = $('xmlcontent').value;
-        windowcode = windowcode.replace(
-            /<([^!>\s]+)(\s|>)/g,
-            function(tag, tagname, end) {
-                return '<'+tagname.toLowerCase()+end;
-            }
-        ); // Will this work with CDATA? Seems to work ok because of Firefox's DOM conversion process...
-        windowcode = windowcode.replace(
-            /<!DOCTYPE(\s+)([^>\s]*)([\s>])/,
-            function (whole, ws1, root, ws2) {
-                return '<!DOCTYPE'+ws1+root.toLowerCase()+ws2;
-            }
-        );
-        // Overcome a few known obfuscation techniques used at some sites to prevent querying:
-        windowcode = windowcode.replace(
-            /<!DOCTYPE html PUBLIC "-\/\/W3C\/\/DTD HTML 4\.01 Transitional\/\/EN">/,
-            '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'
-        );
-        windowcode = windowcode.replace(/<!--(-*)([^>]*)[^>-](-*)-->/g, '<!--$2-->'); // Firefox allows comments with extra hyphens to display in HTML (including in its inner DOM representation), but will not be valid as XML.
-        windowcode = windowcode.replace(/\s\)=""/g, '');
+        var windowcode = $('xmlcontent').value.replace(
+                /<([^!>\s]+)(\s|>)/g,
+                function(tag, tagname, end) {
+                    return '<'+tagname.toLowerCase()+end;
+                }
+            ).replace(
+                // Will this work with CDATA? Seems to work ok because of Firefox's DOM conversion process...
+                /<!DOCTYPE(\s+)([^>\s]*)([\s>])/,
+                function (whole, ws1, root, ws2) {
+                    return '<!DOCTYPE'+ws1+root.toLowerCase()+ws2;
+                }
+            ).replace(
+                /<!DOCTYPE html PUBLIC "-\/\/W3C\/\/DTD HTML 4\.01 Transitional\/\/EN">/,
+                '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'
+            ).replace(/<!--(-*)([^>]*)[^>-](-*)-->/g, '<!--$2-->'
+            // Firefox allows comments with extra hyphens to display in HTML (including in its inner DOM representation), but will not be valid as XML.
+            ).replace(/\s\)=""/g, '');
         $('xmlcontent').value = windowcode;
     },
     getprops: function(id) {
         var el = $(id);
         for (var prop in el) {
 //            if (abc !== 'mInputField' && abc !== 'maxLength' && abc !== 'size' && abc !== 'nodeValue' && abc !== 'firstChild' && abc !== 'lastChild' && abc !== 'prefix' && abc !== 'database' && abc !== 'builder') {
-                java.lang.System.out.println(prop+'::: '+el[prop]);
+                console.log(prop+'::: '+el[prop]);
 //            }
         }
     },
@@ -754,15 +662,6 @@ var executeXSL = {
         temp.data = this.defaultxsl;
         this.prefs.setComplexValue('extensions.xslresults.defaultxsl', Ci.nsIPrefLocalizedString, temp);
 
-        /* Not needed since hard-wiring
-        var sax1 = $('SaxonJarfiles').value;
-        var saxon_val = this.getUrlSpec('SaxonWrapper'); // this.extpath+'SaxonWrapper'+this.OSfile_slash;
-        $('SaxonJarfiles').value = saxon_val;
-                 if (saxon_val != sax1) { // || bdbxml_val != bdb1) {
-            var ev4 = {target: {value: saxon_val, val: '0'}};
-            this.jarchange(ev4);
-        }
-        */
     },
     checkForDups : function (doc) {
         if (typeof doc === 'string' && (!doc || doc.match(/^\s*$/))) {
