@@ -1,0 +1,4 @@
+content	xslresults	content/
+locale	xslresults	en-US	locale/en-US/
+skin	xslresults	classic/1.0	skin/
+overlay	chrome://browser/content/browser.xul	chrome://xslresults/content/firefoxOverlay.xul

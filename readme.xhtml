@@ -1,0 +1,206 @@
+<!--
+Copyright 2007, 2008, 2009 Brett Zamir
+    This file is part of XSL Results.
+
+    XSL Results is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XSL Results is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with XSL Results.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"[
+<!ENTITY % xhtml-target.module "INCLUDE" >
+]>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>XSL Results README</title>
+<style type="text/css">
+.roman-list {list-style-type: lower-alpha;}
+</style>
+</head>
+
+<body>
+<div id="content">
+<h1>Licenses</h1>
+<p>The XSL Results extension (not including the Saxon JAR files available from
+<a target="_blank" href="http://saxonica.com/">http://saxonica.com/</a> which is stated at its site (12/11/07) to be under the Mozilla
+Public License 1.0 at <a target="_blank" href="http://www.mozilla.org/MPL/MPL-1.0.html">http://www.mozilla.org/MPL/MPL-1.0.html</a>, the
+firefoxClassLoader.jar from the Java Firefox extension at
+<a target="_blank" href="http://simile.mit.edu/wiki/Java_Firefox_Extension">http://simile.mit.edu/wiki/Java_Firefox_Extension</a> which according to the site
+(12/11/07) is under the BSD license, the OS detection taken from
+<a target="_blank" href="http://www.quirksmode.org/js/detect.html">http://www.quirksmode.org/js/detect.html</a> as stated at
+<a target="_blank" href="http://www.quirksmode.org/about/copyright.html">http://www.quirksmode.org/about/copyright.html</a> allows one to "copy, tweak, rewrite,
+sell or lease any code example on this site, with one single exception...The Usable
+Forms script", the exists() function excerpt published in fileUtils.js is from
+<a target="_blank" href="http://jslib.mozdev.org/">http://jslib.mozdev.org/</a> (Mozilla Public License 1.1)) is free software which you
+can redistribute and/or modify under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either version 2.1 of the
+License, or (at your option) any later version.</p>
+
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
+
+<p>You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see &lt;<a target="_blank" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
+<hr />
+
+<h1>Introduction</h1>
+
+<p>This extension lets you attach XSL files (whether through the 
+"file:///" protocol, through a local file (e.g., "C:\..."), through a URL 
+(i.e., "http://..."), or through a manually typed XSL file) to the 
+currently displayed XML (or HTML) file.</p>
+
+<h2>Operating System requirements</h2>
+<p>The code is known to work on Windows. If anyone can help to test
+to make sure it works correctly on other systems, please contact 
+me (brettz9 A-T the well-known site Yahoo.com). Due to lagging Java support on 
+the Mac, the Saxon-B option is known not to work on the Mac.</p>
+
+<h2>Known issues:</h2>
+<ol>
+<li>XSLT 2.0's &lt;xsl:result-document> element is not supported.</li>
+<li>Built-in processor will not work for XSL files with 
+	 &lt;xsl:include> or &lt;xsl:import> statements.</li>
+<li>Due to changes in FF3 (at least b2), one can not paste 
+	directly (e.g., a URL) into the file browser textbox, but it is 
+	possible if done through the file dialog (at least on Windows).</li>
+<li>Saxon-B does not work on the Mac (see Operating System requirements)</li>
+</ol>
+
+<h2>Choice of XSLT processor</h2>
+<p>You can either use Firefox's built-in XSLT processor or Michael Kay's Saxon-B 
+XSLT processor (commercial schema-aware version available at <a href="http://saxonica.com/">http://saxonica.com/</a>). 
+The latter is on by default and is required for XSLT 2.0 transformations.</p>
+
+<!-- <p><b>If you migrate computers</b> while keeping your old extension data, be sure to change the JAR file location in
+the Prefs tab of the extension (in such a case, clicking "Reset to Default Values" should find the 
+likely location on your new system). However, if you are on the same system as before, or are starting fresh,
+you shouldn't need to change this setting.</p> -->
+
+<h1>Performing a transformation via the XSL Dialog</h1>
+
+<ol>
+<li>Choose <b>Get XSL Results</b> from the <b>Tools menu</b> to open the XSL Results window.
+<br /><br />
+If you wish to perform a transformation on the currently loaded window/tab in Firefox, be sure 
+to <b>wait until the document  has fully loaded</b> before activating the XSL Results window, 
+or otherwise you will not be able 
+to transform the full text of that document and you will mostly likely get well-formedness errors. 
+However, you are always free to edit the source XML document after loading the XSL Results window.
+<br /><br />
+Be aware that due to either a bug or a feature in Firefox, in serialization, HTML gets converted
+(normalized) to upper case, so be aware that <b>XSL Results will convert HTML tag names all back 
+into lower case</b> so that your transformations can use the more standard lower case tag names 
+(whether or not the original document did or not). True XML files, including 
+<abbr title="eXtensible Hypertext Markup Language">XHTML</abbr> (served as application/xhtml+xml) 
+will be left alone: <a target="_blank" href="http://www.mozilla.org/docs/web-developer/faq.html#xhtmldiff">http://www.mozilla.org/docs/web-developer/faq.html#xhtmldiff</a>).
+
+<br /><br />
+The extension will also attempt to <b>fix the resulting code so that 
+specially (or poorly) crafted HTML will become well-formed XML when converted 
+into  Firefox's DOM representation</b>. For example, comments of the form 
+&lt;!--- which have an extra hyphen, while still
+preserved as such by Firefox in its inner representation of such documents,
+will be converted by this extension into the well-formed style &lt;!-- so 
+as to allow the XSLT engine to be able to transform such documents
+without running into errors.
+<br /><br />
+
+There are also recommended options in preferences (turned on by default) which may <b>strip the 
+DTD</b> (recommended as explained in 
+the interface). (DTD/schema validation of source documents is turned off for BDBXML.) If the 
+automated options are off, you will still have a chance to click a 
+button to strip the DTDs (if a DTD is present). 
+
+HTML DTD's can often cause problems as 
+SGML-style DTD's differ from XML ones, so these are stripped by default. Automatic DTD stripping 
+is on by default for  XML as well as for HTML because it is redundant for true 
+<abbr title="eXtensible Hypertext Markup Language">XHTML</abbr> (Firefox relies on built-in 
+entities) and since other XML documents dependent on the external DTD will currently trigger 
+a parsing error in Firefox anyhow (in such a case, you can manually paste in the source of 
+the current document). Be aware that if you paste in your own XML, the DTD will not be 
+automatically stripped (in such a case, the DTD IS needed for entities and default attributes 
+if you have any, but if you don't have them, it is unnecessary, slower, and taxes the server 
+hosting the DTD).
+<br /><br />The included version of Saxon (Saxon-B) is not 
+schema-aware, nor has this extension been tested with the schema-aware version of Saxon (Saxon-SA).
+<br /><br />
+</li>
+<li>Be aware of <b>potential problems and error reporting</b>:
+<br /><br />
+Although this extension does send a lot of feedback via Javascript, if there are problems,
+you may be able to get more error information by using the <b>Java Console</b>, which will be
+available from Firefox's <b>Tools menu</b>, at least if this is enabled by your system--
+e.g., in Windows, if
+<b>Start->Control Panel->Java->Advanced->Java Console->Show Console</b> is on. If you see a 
+long sequence of errors in the <b>Java Console</b>, you may wish to copy the text 
+there in order to send it to me for any bug reports, but before sending an email, you
+can try restarting Firefox to see if and in what situation the problem recurs.
+<br /><br />
+</li>
+<li>Choose whether to also have <b>output produced in a new window</b> and choose <b>what file extension
+you want the resulting file to possess</b>. If this is made blank, an &lt;xsl:output> element may be
+used to determine the extension type.
+<br /><br />
+</li>
+<li><b>Choose or add your XSL file.</b>
+<br /><br />
+You have the choice of <b>loading an external file</b> for the XSL stylesheet or to <b>paste or type the text 
+in</b> directly.
+<br /><br />
+If you wish to <b>use XSLT 2.0</b>, besides this requiring Saxon-B, you should also remember to indicate the XSLT 
+version in the stylesheet: <code>&lt;xsl:stylesheet version="2.0"></code>
+<br /><br />
+</li>
+<li><b>Hit 'Transform'</b> on the dialog. Be aware that depending on the complexity of your 
+transformation, on whether you are loading files over the network, and on whether you left the
+checkbox on to save the current file, it may take a while to process, but 
+eventually the contents should appear in the XML Output textbox and if the option is selected,
+a new window should open with the results of your transformation. If the window 
+is blank, consider that you may need to view the textbox contents or "Page source" of the document.
+<br /><br />
+Note that any time you hit 'Transform', the <b>window and splitter positions will be saved</b> for next time. 
+The same behavior occurs by hitting 'Ok', but that will not perform a transformation.
+Any time most of the other fields are changed, they will be retained in memory the next time the window is opened.
+</li>
+</ol>
+
+
+<h1>Obtaining the resultant code of an already transformed document loaded in the 
+current FF tab/window</h1>
+<ul>
+<li>There is also a context menu item available to immediately grab the 
+transformation results of the current XML document (using Firefox's built-in XSLT 
+processor) with an already-attached stylesheet and places the results in a 
+textbox (achieves a similar effect as the built-in (yet-not-so-easily-discoverable) 
+Firefox behavior of selecting-all on an XML document and choosing "View selection 
+source").</li>
+
+</ul>
+
+<h1>Notes for developers</h1>
+<p>If you might be interested to access the Saxon-B XSLT (2.0) engine from your own Firefox application,
+see <a href="http://developer.mozilla.org/en/docs/XSLT_2.0">http://developer.mozilla.org/en/docs/XSLT_2.0</a> 
+and #2 and #3 in the "Notes for Developers" section, at <a href="http://bahai-library.com/zamir/xqusemeREADME.xhtml">http://bahai-library.com/zamir/xqusemeREADME.xhtml</a>.</p>
+
+<h1>Acknowledgments</h1>
+
+<p>Thanks to Michael Kay for his work and open-sourcing of Saxon-B which this extension uses and 
+to David Huynh for his help and Java Firefox Extension code. As mentioned in my XqUSEme extension
+notes, I owe a lot to Rob Grzywinski for his help and patience in getting me past some Java 
+issues.</p>
+
+<p>This extension was initially generated by the Extension Wizard at
+<a href="http://ted.mielczarek.org/code/mozilla/extensionwiz/">http://ted.mielczarek.org/code/mozilla/extensionwiz/</a>.</p>
+
+</div>
+</body>
+</html>

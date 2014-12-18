@@ -1,0 +1,238 @@
+<?xml version="1.0"?>
+<!--
+Copyright 2007, 2008, 2009 Brett Zamir
+    This file is part of XSL Results.
+
+    XSL Results is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XSL Results is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with XSL Results.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://xslresults/skin/overlay.css" type="text/css"?>
+<!DOCTYPE dialog SYSTEM "chrome://xslresults/locale/xslresults.dtd">
+<dialog id="getxsldata" title="&getxsldata.title;" xmlns:html="http://www.w3.org/1999/xhtml" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        buttons="extra1,cancel"
+        ondialogcancel="return executeXSL.doCancel();"
+		ondialogextra1="return executeXSL.doTransform();"
+		buttonlabelextra1="&transform;"
+		persist="screenX screenY"
+		>
+		<!-- buttons=extra2,   ondialogextra2="return executeXSL.doOK();"
+		buttonlabelextra2="&buttonlabelextra2;" -->
+<script type="application/x-javascript" src="performXSL.js"/>
+<script type="application/x-javascript" src="getxsldata.js"/>
+
+
+<stringbundleset id="stringbundleset">
+    <stringbundle id="xslresults-strings" src="chrome://xslresults/locale/xslresults.properties"/>
+</stringbundleset>
+<tabbox id="xsltabbox" flex="1">
+	<tabs id="xsltabs">
+		<tab label="&Query.tab.label;"/>
+		<tab label="&Siteprefs.tab.label;"/>
+		<tab label="&Prefs.tab.label;"/>
+		<tab label="&Help.tab.label;"/>
+	</tabs>
+	<tabpanels id="xsltabpanels" flex="1">
+		<tabpanel id="xslboxpanel" flex="1">
+	<vbox flex="1">
+		
+		
+		<hbox><label control="xslfile" value="&xslfilepath.value;"/>
+		<html:input id="xslfile" type="file" onfocus="executeXSL.fileChangeHandler();" onchange="executeXSL.fileChangeHandler();" size="50"/></hbox>
+		<hbox flex="1">
+			<vbox id="xslcontentbox">
+				<label control="xslcontent" value="&xslcontent.value;"/>
+				<textbox width="50" persist="width" flex="1" id="xslcontent" multiline="true"></textbox>
+				<progressmeter id="progressmeter" mode="undetermined"/>
+			</vbox>
+			<splitter id="textboxsplitter"/>
+			<vbox flex="1" id="xmlcontentbox">
+				<groupbox>
+				  <caption label="&XSLTProcessor;"/>
+				  <radiogroup id="extensions.xslresults.enginetype" onclick="executeXSL.setprefs(event);return false;" onkeypress="executeXSL.setprefs(event);return false;">
+					<hbox>
+						<radio id="_0-extensions.xslresults.enginetype" label="&Saxon9B;"/>
+						<radio id="_1-extensions.xslresults.enginetype" label="&builtin_xslt;"/>
+					</hbox>
+				  </radiogroup>
+				</groupbox>
+				<label control="xmlcontent" value="&xmlcontent.value;"/>
+				<textbox flex="1" id="xmlcontent" multiline="true"/>
+				<!--<button oncommand="executeXSL.converttohtml();" label="&converttohtm;" />-->
+				<button id="stripdtd" class="invisible" oncommand="executeXSL.stripDTD();" label="&stripDTD;" />
+			</vbox>
+			<splitter id="textboxsplitter2" />
+			<vbox flex="1" id="xmloutputbox">
+				<hbox>
+					<label control="extensions.xslresults.open_where" value="&Open_where;"/>
+					<radiogroup id="extensions.xslresults.open_where" class="xslresults-text" 
+								oncommand="executeXSL.toggleOutputExt();executeXSL.setprefs(event);return false;">
+						<hbox>
+							<radio id="open_window" label="&new_window;"/>
+							<radio id="open_tab" label="&new_tab;"/>
+							<radio id="open_textbox_only" label="&textbox_only;"/>
+						</hbox>
+					</radiogroup>
+				</hbox>
+
+				<hbox>
+					<label control="outputext" value="&outputextbox;"/>
+					<textbox id="outputext" onchange="executeXSL.outputext(event);" />
+				</hbox>
+				<hbox>
+					<label control="xmloutput" class="xslresults-text" value="&xmloutput.value;"/>
+				</hbox>
+				<textbox cols="10" rows="17" multiline="true" id="xmloutput" flex="1"/>
+				<vbox>
+					<button label="&load_page_query;" 
+					    tooltiptext="&load_page_tooltip;" 
+						oncommand="executeXSL.loadPageXSL();"/>
+					<hbox flex="1">
+						<button flex="1" label="&update_xml;" 
+						    tooltiptext="&update_xml_tooltip;"
+							oncommand="executeXSL.updateXMLQueryWindow();"/>
+						<button flex="1"  
+						    tooltiptext="&update_xml_pre_tooltip;"
+							oncommand="executeXSL.updateXMLPreStylesheet();">
+							&update_xml_pre; <html:br/> &update_xml_pre2;
+						</button>
+					</hbox>
+				</vbox>
+			</vbox>
+		</hbox>
+		<!-- <splitter id="textboxsplitter3"/> -->
+	</vbox>
+</tabpanel>
+
+		<tabpanel id="xslSitePrefs" flex="1">
+			<hbox flex="1">
+				<vbox persist="ordinal hidden height width" id="treeContainer" flex="1">
+
+<tree seltype="single" id="querytree" flex="1" 
+enableColumnDrag="true" editable="true"
+onselect="executeXSL.populateSitePrefBoxes(event.target);"
+>
+<!-- flags="dont-build-content" -->
+
+		<treecols>
+			<treecol editable="true" onclick="executeXSL.sort(this);" id="queryname" 
+				flex="7" label="&treecol_name;" tooltiptext="&treecol_name_tooltip;" 
+				persist="width ordinal hidden sortDirection"/>
+				<splitter class="tree-splitter"/>
+			<treecol editable="true" onclick="executeXSL.sort(this);" id="queryurl" 
+				flex="13" label="&treecol_url;" tooltiptext="&treecol_url_tooltip;"
+				persist="width ordinal hidden sortDirection"/>
+				<splitter class="tree-splitter"/>
+			<treecol editable="true" onclick="executeXSL.sort(this);" id="queryxsl"
+					flex="7" label="&treecol_XSL;" tooltiptext="&treecol_XSL_tooltip;"
+					persist="width ordinal hidden sortDirection"/>
+					<splitter class="tree-splitter"/>
+			<treecol editable="true" onclick="executeXSL.sort(this);" id="queryext" 
+				label="&treecol_ext;" tooltiptext="&treecol_tooltip;"
+				persist="width ordinal hidden sortDirection"/>
+				<splitter class="tree-splitter"/>
+			<treecol onclick="executeXSL.sort(this);" id="queryon" label="&treecol_on;" 
+				type="checkbox" editable="true" 
+				tooltiptext="&treecol_on_tooltip;"
+				persist="width ordinal hidden sortDirection"/>
+				<splitter class="tree-splitter"/>
+
+			<treecol onclick="executeXSL.sort(this);" id="queryPreStylesheets" 
+				label="&treecol_prestyle;" type="checkbox" editable="true" 
+				tooltiptext="&treecol_prestyle_tooltip;"
+				persist="width ordinal hidden sortDirection"/>
+				<splitter class="tree-splitter"/>
+			<!--<treecol onclick="executeXSL.sort(this);" id="queryjs" label="JS" type="checkbox" editable="true" 
+				tooltiptext="JavaScript processing enabled? (security risk)"
+				persist="width ordinal hidden sortDirection"/><splitter class="tree-splitter"/>
+			<treecol onclick="executeXSL.sort(this);" id="querychrome" label="Chrome" type="checkbox" editable="true" 
+				tooltiptext="Chrome mode (security risk)"
+				persist="width ordinal hidden sortDirection"/><splitter class="tree-splitter"/>-->
+			
+			<!--<treecol id="queryLoadOrig" flex="1" label="Act on orig. source?" 
+			  tooltiptext="Act on the original source code before DOM conversion?"
+			  persist="width ordinal hidden sortDirection"
+			  sort="?load"  />-->
+		</treecols>	
+  <treechildren id="treechildren"/>
+</tree>
+
+				</vbox>
+				<splitter />
+				<vbox flex="1" id="xmlsiteprefRecord">
+					<vbox flex="1" id="_box1" persist="ordinal hidden height width">
+						<label control="xmlSitePref.name" value="&xmlSitePref_name_label;" 
+							tooltiptext="&xmlSitePref_name_tooltip;"/>
+						<textbox size="40" id="xmlSitePref.name" 
+							oninput="executeXSL.updateTreeOnChange(event);"/>
+						<label control="xmlSitePref.url" tooltiptext="&xmlSitePref_url_tooltip;"
+							 value="&xmlSitePref_url_label;"/>
+						<textbox rows="2" multiline="true" id="xmlSitePref.url" 
+							flex="1" oninput="executeXSL.updateTreeOnChange(event);"/>
+						<hbox class="cutlink">
+							&#160; &#160; &#160; &#160;<html:a target="_blank" id="link" class="link"></html:a>
+						</hbox>
+					</vbox>
+					<splitter/>
+					<vbox id="_box2" persist="ordinal hidden height width">
+						<label control="xmlSitePref.xsl" value="&xmlSitePref_xsl_label;"/>
+						<textbox rows="2" multiline="true" id="xmlSitePref.xsl" 
+							oninput="executeXSL.updateTreeOnChange(event);" flex="1"/>
+					</vbox>
+					<hbox>
+						<button  label="&newItem_label;" oncommand="executeXSL.newItem();"/>
+						<button label="&newItemCurrent_label;" 
+							oncommand="executeXSL.newItem(true);"/>
+						<button label="&deleteItem_label;" oncommand="executeXSL.deleteItem();"/>
+						<spacer flex="1"/>
+						<button label="&moveQuery_label;" 
+							tooltiptext="&moveQuery_tooltip;" oncommand="executeXSL.moveToMainWindow();"/>
+					</hbox>
+				</vbox>
+			</hbox>
+		</tabpanel>
+
+		<tabpanel id="xslprefs">
+			<vbox id="xslprefshbox">
+				<groupbox>
+					<caption label="&dtdstripping;"/>
+					<description value="&autostripdtd;"/>
+					<description value="&autostripdtd2;"/>
+					<checkbox id="extensions.xslresults.xmlstripdtd" label="&stripforxml;" onclick="executeXSL.setprefs(event);return false;" onkeypress="executeXSL.setprefs(event);return false;"/>
+					<checkbox id="extensions.xslresults.htmlstripdtd" label="&stripforhtml;" onclick="executeXSL.setprefs(event);return false;" onkeypress="executeXSL.setprefs(event);return false;"/>
+				</groupbox>
+				
+				<groupbox>
+					<caption label="&applyingXSLT;"/>
+					<checkbox id="extensions.xslresults.applyXSLT" label="&applyXSLT;" onclick="return executeXSL.applyXSLT(event);" onkeypress="return executeXSL.applyXSLT(event);"/>
+					<checkbox id="extensions.xslresults.applyXSLT2" label="&applyXSLT2;" onclick="executeXSL.setprefs(event);return false;" onkeypress="executeXSL.setprefs(event);return false;"/>
+				</groupbox>
+				
+				<!--
+				<groupbox id="Saxongroupbox">
+					<caption label="&Saxon;"/>
+					<label control="SaxonJarfiles" class="xslresults-text" value="&SaxonJarfiles.value;"/>
+					<textbox size="90" rows="1" val="0" id="SaxonJarfiles" onchange="executeXSL.jarchange(event);"/>
+				</groupbox>-->
+				<vbox align="center">
+					<button id="resetdefaultbutton" label="&resettodefault.label;" oncommand="executeXSL.resetdefaults();"/>
+				</vbox>
+			</vbox>
+		</tabpanel>
+		<tabpanel>
+			<iframe id="helppanel" flex="1"></iframe>
+		</tabpanel>
+	</tabpanels>
+</tabbox>
+
+</dialog>

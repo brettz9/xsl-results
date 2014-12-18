@@ -1,0 +1,109 @@
+<!--
+Copyright 2007, 2008, 2009 Brett Zamir
+    This file is part of XSL Results.
+
+    XSL Results is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    XSL Results is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with XSL Results.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<!ENTITY load_page_query "Load Page's XSL">
+<!ENTITY load_page_tooltip "Load XSL for this page, if any exists">
+<!ENTITY update_xml "Update XML">
+<!ENTITY update_xml_tooltip "Update XML with current window's code">
+<!ENTITY update_xml_pre "Update XML">
+<!ENTITY update_xml_pre2 "(pre-stylesheet)">
+
+<!ENTITY applyingXSLT "Applying XSLT">
+<!ENTITY applyXSLT "Automatically apply Saxon for all attached XSLT xml-stylesheet instructions">
+<!ENTITY applyXSLT2 "Automatically apply Saxon for attached XSLT 2.0 xml-stylesheet instructions">
+
+<!ENTITY xslresults-viewsource.contextmenu.label "View Source (original XML) as Text">
+<!ENTITY xslresults-viewsourceTB.contextmenu.label "View Source (original XML) in Textbox">
+<!ENTITY xslresults-viewsourcePlain.contextmenu.label "View Source (original XML) as XML">
+
+<!ENTITY XSL-viewsource.accesskey "s">
+<!ENTITY xslresults-saxon.contextmenu.label "View Transformed Source (Saxon)">
+<!ENTITY XSL-Saxon.accesskey "s">
+<!ENTITY XSL-results.accesskey "r">
+<!ENTITY xslresults-results.contextmenu.label "Get XSL Results">
+
+<!ENTITY xslresultsTB-saxon.contextmenu.label "View X-formed Source (Saxon) in Textbox">
+<!ENTITY xslresultsTB.contextmenu.label "View X-formed Source (native Transformiix) in Textbox">
+
+
+<!ENTITY update_xml_pre_tooltip "Update XML with current window's code (pre-stylesheet)">
+<!ENTITY treecol_name "Name">
+<!ENTITY treecol_url "URL">
+<!ENTITY treecol_name_tooltip "Name">
+<!ENTITY treecol_url_tooltip "URL">
+<!ENTITY treecol_XSL "XSL">
+<!ENTITY treecol_XSL_tooltip "XSL">
+<!ENTITY treecol_ext "Ext.">
+<!ENTITY treecol_tooltip "File extension for output">
+<!ENTITY treecol_on "On">
+<!ENTITY treecol_on_tooltip "Activated by default on page loads?">
+<!ENTITY treecol_prestyle "Pre-stylesheets">
+<!ENTITY treecol_prestyle_tooltip "Retrieve page before XSL xml-stylesheet instructions are processed? (will not clean up poorly-formed code)">
+<!ENTITY xmlSitePref_name_label "XSL stylesheet name (optional):">
+<!ENTITY xmlSitePref_name_tooltip "Choose a convenient name to remember this stylesheet (and/or URL)">
+<!ENTITY xmlSitePref_url_tooltip "Separate URLs by space or newlines">
+<!ENTITY xmlSitePref_url_label "Site to which this XSL stylesheet will apply (can use wildcard (*) within):">
+
+<!ENTITY xmlSitePref_xsl_label "XSL to apply to the above site(s):">
+<!ENTITY newItem_label "New">
+<!ENTITY newItemCurrent_label "New (using current)">
+<!ENTITY deleteItem_label "Delete">
+<!ENTITY moveQuery_label "Move to main window">
+<!ENTITY moveQuery_tooltip "Keep changes and move this XSL to the main window">
+
+
+
+<!ENTITY xslresults.toolbar.label "Get XSL Results">
+<!ENTITY xslresults.contextmenu.label "View Transformed Source (native Transformiix)">
+<!ENTITY xslfilepath.value "Give a URL or a local path (e.g., C:\...) to an XSL file:">
+<!ENTITY XSL.accesskey "X">
+<!ENTITY getxsldata.title "Perform XSL transformation">
+<!ENTITY xslcontent.value "OR... enter XSL stylesheet here:">
+<!ENTITY xmlcontent.value "Enter XML content here (currently-loaded document by default):">
+<!ENTITY transform "Transform">
+<!ENTITY buttonlabelextra2 "Set window and exit">
+
+<!ENTITY converttohtml "Convert to HTML"> <!-- Not currently in use since automated it -->
+<!ENTITY stripDTD "Strip DTD (faster if not needed)">
+
+<!ENTITY Saxon9B "Saxon 9B (necessary for XSLT 2.0)">
+<!ENTITY builtin_xslt "Built-in XSLT">
+<!ENTITY XSLTProcessor "XSLT Processor">
+
+<!ENTITY Query.tab.label "XSL">
+<!ENTITY Siteprefs.tab.label "Site prefs">
+<!ENTITY Prefs.tab.label "Prefs">
+<!ENTITY Help.tab.label "Readme">
+
+<!ENTITY resettodefault.label "Reset to default values">
+
+<!ENTITY dtdstripping "DTD stripping">
+<!ENTITY autostripdtd "Before transforming current document in Firefox, automatically strip DTD references?:">
+<!ENTITY autostripdtd2 "(faster by avoiding parsing the DTD and DTD not needed for entities anyways since current document code was pre-parsed)">
+<!ENTITY stripforxml "For XML/XHTML (including XHTML served as text/html)">
+<!ENTITY stripforhtml "For HTML (generally recommended here since SGML-style HTML DTDs may create well-formedness errors for the XML parser)">
+
+<!ENTITY SaxonJarfiles.value "JAR files directory:">
+<!ENTITY Saxon "Saxon">
+<!ENTITY xmloutput.value "XML Output">
+<!ENTITY outputextbox "Output file ext.">
+
+
+<!ENTITY Open_where "Open where?">
+<!ENTITY new_window "New window">
+<!ENTITY new_tab "New tab">
+<!ENTITY textbox_only "Textbox only">

@@ -1,4 +1,3 @@
-xsl-results
-===========
+# xsl-results
 
-Firefox add-on to allow XSL transformations
+Firefox add-on to allow XSL transformations.
