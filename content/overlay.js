@@ -1,4 +1,6 @@
-(function () {
+/*global performXSL, BrowserViewSourceOfDocument, Components, DOMParser, XPathResult*/
+/*jslint vars:true*/
+var xslresults = (function () {'use strict';
 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -55,13 +57,13 @@ var xslresults = {
         this.startLoadListeners();
     },
     docEvaluateArray : function (expr, doc, context, resolver) {
-        doc = doc ? doc : document;
-        resolver = resolver ? resolver : null;
-        context = context ? context : doc;
+        doc = doc || document;
+        resolver = resolver || null;
+        context = context || doc;
 
         var result = doc.evaluate(expr, context, resolver, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-        var a = [];
-        for(var i = 0; i < result.snapshotLength; i++) {
+        var i, a = [];
+        for(i = 0; i < result.snapshotLength; i++) {
             a[i] = result.snapshotItem(i);
         }
         return a;
@@ -104,91 +106,94 @@ var xslresults = {
     //                                    var xsl = '';
 
                             var cb0 = function (buf) { // Gets XML
-                            var wininfo = that.performXSL.getWindowContent(window);
-                            if ((wininfo.ctype === 'xml' && that.prefs.getBoolPref('extensions.xslresults.xmlstripdtd')) ||
-                                        (wininfo.ctype=== 'html' && that.prefs.getBoolPref('extensions.xslresults.htmlstripdtd'))) {
-                                buf = buf.replace(/<!DOCTYPE[^>\[]*\[[^\]]*\]>/g, '').replace(/<!DOCTYPE[^>]*>/g, '');
-                            }
-                            pis = that.docEvaluateArray('/processing-instruction("xml-stylesheet")', e.originalTarget);
-
-                            for (i=0; i < pis.length; i++) {
-                                var results = pis[0].nodeValue.match(/(^|\s+)type\s*=\s*(['"])([^'"]*)\2/);
-                                var type = results[3];
-
-                                if ((PHP.in_array(type, ['text/xsl', 'application/xml', 'application/xslt+xml']) &&
-                                      that.prefs.getBoolPref('extensions.xslresults.applyXSLT')) ||
-                                        (type === 'application/xslt+xml' &&
-                                          that.prefs.getBoolPref('extensions.xslresults.applyXSLT2'))
-                                    ) {
-
-                                    var results2 = pis[0].nodeValue.match(/(^|\s+)href\s*=\s*(['"])([^'"]*)\2/);
-                                    var absHref = results2[3];
-                                    if (!absHref.match(/^(https?|file):\/\//)) {
-                                        absHref = e.originalTarget.documentURIObject.resolve(absHref);
-                                    }
-                                    var cb1 = function (stylesheet) {
-                                        var cb2 = {
-                                            processResult : function (data, ext) {
-                                                /*if (textbox) {
-                                                      data = '<textarea cols="100%" rows="40">'+data+'</textarea>';
-                                                      ext = 'html';
-                                                }*/
-                                                /*
-				var where = that.prefs.getBoolPref('extensions.xslresults.open_where');
-                                                if (where === 'open_window') {
-                                                      that.openfile(data, ext); // works to open a new window
-                                                }
-					else if (where === 'open_tab') {
-						that.openTab(data, ext);
-					}
-                                                else {
-                                                */
-                                                  // var charset = newDocument.characterSet; // Do we really need to do this?
-                                                var charset = 'UTF-8';
-                                                var filepath = this.writeFile(data, ext, charset); // Any way (or need) to dynamically change extension here?
-                                                e.originalTarget.location.href = filepath;
-                                                // }
-                                            }
-                                        };
-
-                                        that.performXSL.finish(stylesheet, buf, cb2, 1); // 1 is Transformiix
-                                    };
-                                    that.performXSL.getPrestyleDoc(absHref, null, null, 'UTF-8', cb1, true);
+                                var wininfo = that.performXSL.getWindowContent(window);
+                                if ((wininfo.ctype === 'xml' && that.prefs.getBoolPref('extensions.xslresults.xmlstripdtd')) ||
+                                            (wininfo.ctype=== 'html' && that.prefs.getBoolPref('extensions.xslresults.htmlstripdtd'))) {
+                                    buf = buf.replace(/<!DOCTYPE[^>\[]*\[[^\]]*\]>/g, '').replace(/<!DOCTYPE[^>]*>/g, '');
                                 }
-                            }
+                                pis = that.docEvaluateArray('/processing-instruction("xml-stylesheet")', e.originalTarget);
+
+                                var results, type, results2, absHref, cb1;
+                                for (i = 0; i < pis.length; i++) {
+                                    results = pis[0].nodeValue.match(/(^|\s+)type\s*=\s*(['"])([^'"]*)\2/);
+                                    type = results[3];
+
+                                    if ((PHP.in_array(type, ['text/xsl', 'application/xml', 'application/xslt+xml']) &&
+                                          that.prefs.getBoolPref('extensions.xslresults.applyXSLT')) ||
+                                            (type === 'application/xslt+xml' &&
+                                              that.prefs.getBoolPref('extensions.xslresults.applyXSLT2'))
+                                        ) {
+
+                                        results2 = pis[0].nodeValue.match(/(^|\s+)href\s*=\s*(['"])([^'"]*)\2/);
+                                        absHref = results2[3];
+                                        if (!absHref.match(/^(https?|file):\/\//)) {
+                                            absHref = e.originalTarget.documentURIObject.resolve(absHref);
+                                        }
+                                        cb1 = function (stylesheet) {
+                                            var cb2 = {
+                                                processResult : function (data, ext) {
+                                                    /*if (textbox) {
+                                                          data = '<textarea cols="100%" rows="40">'+data+'</textarea>';
+                                                          ext = 'html';
+                                                    }*/
+                                                    /*
+                    var where = that.prefs.getBoolPref('extensions.xslresults.open_where');
+                                                    if (where === 'open_window') {
+                                                          that.openfile(data, ext); // works to open a new window
+                                                    }
+                        else if (where === 'open_tab') {
+                            that.openTab(data, ext);
+                        }
+                                                    else {
+                                                    */
+                                                      // var charset = newDocument.characterSet; // Do we really need to do this?
+                                                    var charset = 'UTF-8';
+                                                    var filepath = this.writeFile(data, ext, charset); // Any way (or need) to dynamically change extension here?
+                                                    e.originalTarget.location.href = filepath;
+                                                    // }
+                                                }
+                                            };
+
+                                            that.performXSL.finish(stylesheet, buf, cb2, 1); // 1 is Transformiix
+                                        };
+                                        that.performXSL.getPrestyleDoc(absHref, null, null, 'UTF-8', cb1, true);
+                                    }
+                                }
     //                      var wininfo = that.performXSL.getWindowContent(e.target.defaultView); // defaultView grabs window owner of this document
     //                      that.performXSL.getDataForXSL(wininfo.content, xsl, cbo);
+                            };
+                            that.performXSL.getPrestyleDoc(href, null, null, 'UTF-8', cb0, true); // window.content.document.characterSet
                         }
-                        that.performXSL.getPrestyleDoc(href, null, null, 'UTF-8', cb0, true); // window.content.document.characterSet
+                    } // <?xml-stylesheet href="abc" type="text/xsl"?>
+                    // Including file retrieval here to be able to get new results after changing in XSL window
+                    var xmlDoc0 = that.performXSL.loadfile('xslresults_querydata.xml');
+                    if (typeof xmlDoc0 === 'string' && (!xmlDoc0 || xmlDoc0.match(/^\s*$/))) {
+                        return;
                     }
-                } // <?xml-stylesheet href="abc" type="text/xsl"?>
-                // Including file retrieval here to be able to get new results after changing in XSL window
-                var xmlDoc0 = that.performXSL.loadfile('xslresults_querydata.xml');
-                if (typeof xmlDoc0 === 'string' && (!xmlDoc0 || xmlDoc0.match(/^\s*$/))) {
-                    return;
-                }
 
-                var xmlDoc = new DOMParser().parseFromString(xmlDoc0, 'text/xml');
-                var urlmatch = that.performXSL.findMatchedURL(href, xmlDoc, assignCB);
-                if (!urlmatch) {
-                    return;
-                }
-                var cbo = {
-                    processResult : function (content) {
-                        var charset = new DOMParser().parseFromString(content, 'text/xml').characterSet; // Do we really need to do this?
-                        var filepath = that.performXSL.writeFile(content, that.fileext, charset);
-                        e.target.location.href = filepath;
+                    var xmlDoc = new DOMParser().parseFromString(xmlDoc0, 'text/xml');
+                    var urlmatch = that.performXSL.findMatchedURL(href, xmlDoc, assignCB);
+                    if (!urlmatch) {
+                        return;
                     }
-                };
-                if (that.prestyle) {
-                    that.performXSL.getPrestyleDoc(href, that.xsl, cbo, e.target.characterSet);
+                    var cbo = {
+                        processResult : function (content) {
+                            var charset = new DOMParser().parseFromString(content, 'text/xml').characterSet; // Do we really need to do this?
+                            var filepath = that.performXSL.writeFile(content, that.fileext, charset);
+                            e.target.location.href = filepath;
+                        }
+                    };
+                    if (that.prestyle) {
+                        that.performXSL.getPrestyleDoc(href, that.xsl, cbo, e.target.characterSet);
+                    }
+                    else {
+                        var wininfo = that.performXSL.getWindowContent(e.target.defaultView); // defaultView grabs window owner of this document
+                        that.performXSL.getDataForXSL(wininfo.content, that.xsl, cbo);
+                    }
                 }
-                else {
-                    var wininfo = that.performXSL.getWindowContent(e.target.defaultView); // defaultView grabs window owner of this document
-                    that.performXSL.getDataForXSL(wininfo.content, that.xsl, cbo);
-                }
-            }
-        }, false);
+            },
+            false
+        );
     },
     getUrlSpec : function (myfile) {
         // returns nsIFile for the given extension's file
@@ -256,7 +261,7 @@ var xslresults = {
             var stylesheet = false;
             var stylesheetURL = false;
             while ((xslt2prinst = xslt2re.exec(buf)) != null) {
-                stylesheet = xslt2prinst[2] ? xslt2prinst[2] : (xslt2prinst[5] ? xslt2prinst[5] : false);
+                stylesheet = xslt2prinst[2] || xslt2prinst[5] || false;
                 if (stylesheet) {
                         stylesheetURL = stylesheet;
                         if (!stylesheet.match(/^(https?|file):\/\//)) {
@@ -347,14 +352,14 @@ var xslresults = {
                  this.fURL, ctype, conttype);
         xsldialog.focus();
     },
-    performXSL : performXSL
+    performXSL: performXSL
 };
 
-this.xslresults = xslresults;
+return xslresults;
 
 }());
 
-window.addEventListener("load", function(e) {
+window.addEventListener("load", function(e) {'use strict';
     performXSL.onLoad(e);
     xslresults.onLoad(e);
 }, false);

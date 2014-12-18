@@ -1,3 +1,6 @@
+/*globals performXSL, Components, XMLSerializer, DOMParser, XSLTProcessor, XPathResult*/
+/*jslint vars:true, bitwise:true*/
+'use strict';
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 
@@ -13,25 +16,21 @@ function file_put_contents (file, data, charset) { // Fix: allow file to be plac
     // Can be any character encoding name that Mozilla supports // Brett: Setting earlier, but even with a different setting, it still seems to save as UTF-8
     charset = (!charset) ? 'UTF-8' : charset;
 
-    var MY_ID = 'xslresults@brett.zamir';
-    var em = Cc['@mozilla.org/extensions/manager;1'].getService(Ci.nsIExtensionManager);
     // the path may use forward slash ('/') as the delimiter
 
     if (typeof file === 'string') {
-//                        var file = this.extdir.getItemFile(this.extid, filename);
         var tempfilename = file;
         file = Cc['@mozilla.org/file/directory_service;1'].getService(Ci.nsIProperties).get('ProfD', Ci.nsILocalFile);
         file.append(tempfilename);
     }
-    // var file = em.getInstallLocation(MY_ID).getItemFile(MY_ID, 'content/'+filename);
 
     if( !file.exists() ) {   // if it doesn't exist, create  // || !file.isDirectory()
-            file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0777); // DIRECTORY_TYPE
+            file.create(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt('0777', 8)); // DIRECTORY_TYPE
     }
     // file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0664); // for temporary
 
     var foStream = Cc['@mozilla.org/network/file-output-stream;1'].createInstance(Ci.nsIFileOutputStream);
-    foStream.init(file, 0x02 | 0x08 | 0x20, 0664, 0); // use 0x02 | 0x10 to open file for appending.
+    foStream.init(file, 0x02 | 0x08 | 0x20, parseInt('0664', 8), 0); // use 0x02 | 0x10 to open file for appending.
     // foStream.init(file, 0x02 | 0x08 | 0x20, 0664, 0); // write, create, truncate
 
     var os = Cc['@mozilla.org/intl/converter-output-stream;1']  .createInstance(Ci.nsIConverterOutputStream);
@@ -78,13 +77,13 @@ var executeXSL = {
         else if (colname === 'xsl') {
             val = e.target.value.replace(/\n/g, '\\\\n');
         }
-        if (t.currentIndex == -1) {
+        if (t.currentIndex === -1) {
             return;
         }
         try {
-                t.view.setCellText(t.currentIndex, col, val);
+            t.view.setCellText(t.currentIndex, col, val);
         }
-        catch(e) {
+        catch(ignore) {
         }
         t.view.setCellText(t.currentIndex, col, val);
         this.updateView();
@@ -100,7 +99,7 @@ var executeXSL = {
             try {
                 this.xmlDoc.replaceChild($('treechildren').cloneNode(true), this.xmlDoc.getElementById('treechildren'));
             }
-            catch (e) {
+            catch (ignore) {
             }
         }
         file_put_contents ('xslresults_querydata.xml', this.serialize(this.xmlDoc)); // Added here to ensure had latest when relying on DOMContentLoaded
@@ -130,7 +129,7 @@ var executeXSL = {
         this.updateView();
     },
     escapeXML : function (xml) {
-        return xml.replace(/&/g, '&amp;').replace(/\</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/, '&apos;').replace(/\n/g, '\\\\n');
+        return xml.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/, '&apos;').replace(/\n/g, '\\\\n');
     },
     emptySitePrefFields : function () {
         $('xmlSitePref.name').value = '';
@@ -158,11 +157,12 @@ var executeXSL = {
         this.updateView();
     },
     populateSitePrefBoxes : function (t) {
-        if (t.currentIndex == -1) {
+        if (t.currentIndex === -1) {
            return;
         }
+        var url;
         try {
-           var url = t.view.getCellText(t.currentIndex, t.columns.getNamedColumn('queryurl'));
+           url = t.view.getCellText(t.currentIndex, t.columns.getNamedColumn('queryurl'));
         }
         catch(e) {
             return;
@@ -251,9 +251,9 @@ var executeXSL = {
         );
     },
     docEvaluate : function (expr, doc, context, resolver) {
-        doc = doc ? doc : document;
-        resolver = resolver ? resolver : null;
-        context = context ? context : doc;
+        doc = doc || document;
+        resolver = resolver || null;
+        context = context || doc;
 
         var result = doc.evaluate(expr, context, resolver, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 /*/                var a = [];
@@ -317,7 +317,7 @@ var executeXSL = {
     p: function(str) {
         console.log(str);
     },
-    onLoad: function(e) {
+    onLoad: function() {
         var that = this;
         $('querytree').addEventListener('blur', function(e) {that.populateSitePrefBoxes(e.target);}, true);
 
@@ -385,7 +385,7 @@ var executeXSL = {
                 
         var defaultxsl = this.branch.getComplexValue('defaultxsl', Ci.nsIPrefLocalizedString).data;
 
-        if (defaultxsl != ' ' && defaultxsl != '') {
+        if (defaultxsl !== ' ' && defaultxsl !== '') {
             $('xslcontent').value = defaultxsl;
         }
         else {
@@ -395,14 +395,14 @@ var executeXSL = {
         try {
             $('xmlcontent').value = window.arguments[0]; // May cause an error if called from the Options dialog
         }
-        catch (e) {
+        catch (ignore) {
         }
 
         var progressmeter = $('progressmeter');
         progressmeter.style.display = 'none'; // In case CSS didn't work...
 
-        var ctype = window.arguments[3];
-        var contenttype = window.arguments[4]; // Not really needed
+        // var ctype = window.arguments[3];
+        // var contenttype = window.arguments[4]; // Not really needed
 
         this.strbundle = $('xslresults-strings');
                 
@@ -421,9 +421,9 @@ var executeXSL = {
             var acceptbutton = document.documentElement.getButton('accept');
             var req = new XMLHttpRequest();
             req.open('GET', xslfilename, true);
-            req.onreadystatechange = function (aEvt) {
-                if (req.readyState == 4) {
-                    if(req.status == 200) {
+            req.onreadystatechange = function () {
+                if (req.readyState === 4) {
+                    if(req.status === 200) {
                         // dump(req.responseText);
                         //that.finish(/*XSL file contents*/ req.responseXML, /* XML to xform*/ xmldata, cbo);
                         $('xslcontent').value = new XMLSerializer().serializeToString(req.responseXML);
@@ -432,9 +432,6 @@ var executeXSL = {
                         acceptbutton.disabled = false;
                         //return false;
                     }
-                }
-                else {
-                /*        alert('Error loading page\n'); */
                 }
             };
             req.send(null);
@@ -462,12 +459,12 @@ var executeXSL = {
 
             var lis = fis.QueryInterface(Ci.nsILineInputStream);
             var lineData = {};
-            var cont;
+            var cont, line;
             var xsldoc = '';
 
             do {
                 cont = lis.readLine(lineData);
-                var line = converter.ConvertToUnicode(lineData.value);
+                line = converter.ConvertToUnicode(lineData.value);
                 xsldoc += line+'\n';
             } while (cont);
 
@@ -507,7 +504,7 @@ var executeXSL = {
         return url.spec;
     },
     toggleOutputExt: function() {
-		$('outputext').disabled = ($('extensions.xslresults.open_where').selectedItem === $('open_textbox_only'))
+		$('outputext').disabled = $('extensions.xslresults.open_where').selectedItem === $('open_textbox_only');
     },
     outputext : function(e) {
         var temp1 = Cc['@mozilla.org/pref-localizedstring;1'].createInstance(Ci.nsIPrefLocalizedString);
@@ -544,16 +541,17 @@ var executeXSL = {
             ).replace(
                 /<!DOCTYPE html PUBLIC "-\/\/W3C\/\/DTD HTML 4\.01 Transitional\/\/EN">/,
                 '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'
-            ).replace(/<!--(-*)([^>]*)[^>-](-*)-->/g, '<!--$2-->'
+            ).replace(/<!--(-*)([^>]*)[^>\-](-*)-->/g, '<!--$2-->'
             // Firefox allows comments with extra hyphens to display in HTML (including in its inner DOM representation), but will not be valid as XML.
             ).replace(/\s\)=""/g, '');
         $('xmlcontent').value = windowcode;
     },
     getprops: function(id) {
         var el = $(id);
-        for (var prop in el) {
+        var prop;
+        for (prop in el) {
 //            if (abc !== 'mInputField' && abc !== 'maxLength' && abc !== 'size' && abc !== 'nodeValue' && abc !== 'firstChild' && abc !== 'lastChild' && abc !== 'prefix' && abc !== 'database' && abc !== 'builder') {
-                console.log(prop+'::: '+el[prop]);
+            console.log(prop+'::: '+el[prop]);
 //            }
         }
     },
@@ -607,7 +605,7 @@ var executeXSL = {
         switch (e.target.nodeName) {
             case 'checkbox':
                 // Apparently hasn't changed yet, so use the opposite
-                this.prefs.setBoolPref(e.target.id, Boolean(!e.target.checked));
+                this.prefs.setBoolPref(e.target.id, !e.target.checked);
                 break;
             case 'radio':
                 var radioid;
@@ -676,8 +674,9 @@ var executeXSL = {
         var enableds = this.performXSL.docEvaluateArray('//xul:treeitem/xul:treerow/xul:treecell[5]/@value', doc, doc, this.performXSL.xulResolver);
 //     var prestyles = this.performXSL.docEvaluateArray('//xul:treeitem/xul:treerow/xul:treecell[6]/@value', doc, doc, this.performXSL.xulResolver);
 
-        for (var i=0, urlArray=[]; i < urls.length; i++) {
-            var url = urls[i].nodeValue;
+        var i, url, urlArray;
+        for (i = 0, urlArray = []; i < urls.length; i++) {
+            url = urls[i].nodeValue;
             if (urlArray[url] && enableds[i].nodeValue === 'true') {
                     alert(this.strbundle.getString('extensions.xslresults.moreThanOneQuery'));
                     return false;
@@ -689,7 +688,7 @@ var executeXSL = {
         }
         return true;
     },
-    onUnLoad : function(e) {
+    onUnLoad : function() {
         // Serialize XML for tree and save to file
 //      alert(this.xmlDoc);
         file_put_contents ('xslresults_querydata.xml', this.serialize(this.xmlDoc));
@@ -712,6 +711,6 @@ var executeXSL = {
         "</body></html>"+"\n"+
         "</xsl:template>"+"\n\n"+
         "</xsl:stylesheet>"
-}
+};
 window.addEventListener('load', function(e) { performXSL.onLoad(e); executeXSL.onLoad(e); }, false);
 window.addEventListener('unload', function(e) { executeXSL.onUnLoad(e); }, false);

@@ -1,4 +1,6 @@
-(function () {
+/*globals Components, XMLSerializer, DOMParser, XSLTProcessor, HTMLDocument, XMLDocument, XPathResult*/
+/*jslint vars:true*/
+(function () {'use strict';
 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
@@ -22,8 +24,8 @@ var regexEscape = (function() {
     );
     return function(text) {
         return text.replace(sRE, '\\$1');
-    }
-})();
+    };
+}());
 
 var performXSL = {
     onLoad : function () {
@@ -70,9 +72,9 @@ var performXSL = {
                 case 'text/xml':
                 case 'application/xml':
                 case 'application/xhtml+xml':
-                        ctype = 'xml';break;
+                    ctype = 'xml';break;
                 default:
-                        ctype = 'xml';break;
+                    ctype = 'xml';break;
         }
 
         // Convert imperfect HTML into well-formed XML, basing it off of Firefox's DOM representation of HTML documents
@@ -87,7 +89,7 @@ var performXSL = {
             content = content.replace(
                   /<!DOCTYPE(\s+)([^>\s]*)([\s>])/g,
                   function (whole, ws1, root, ws2) {
-                          return '<!DOCTYPE'+ws1+root.toLowerCase()+ws2;
+                          return '<!DOCTYPE' + ws1 + root.toLowerCase() + ws2;
                   }
             );
             // Deal with multiple hyphens inside of a comment, since Firefox's DOM parser doesn't fix these
@@ -95,7 +97,7 @@ var performXSL = {
             while (content.match(hyph_comm_patt)) {
                   content = content.replace(hyph_comm_patt, '<!--$1 - $2');
             }
-            content = content.replace(/<!--(-*)([^>]*[^>-])(-*)-->/g, '<!--$2-->'); // Firefox allows comments with extra hyphens to display in HTML (including in its inner DOM representation), but will not be valid as XML.
+            content = content.replace(/<!--(-*)([^>]*[^>\-])(-*)-->/g, '<!--$2-->'); // Firefox allows comments with extra hyphens to display in HTML (including in its inner DOM representation), but will not be valid as XML.
 
             // Overcome a few known obfuscation techniques used at some sites to prevent querying:
             content = content.replace(
@@ -115,13 +117,14 @@ var performXSL = {
         return {ctype:ctype, content:content, contentType: contentType};
     },
     docEvaluateArray : function (expr, doc, context, resolver) {
-        doc = doc ? doc : document;
-        resolver = resolver ? resolver : null;
-        context = context ? context : doc;
+        doc = doc || document;
+        resolver = resolver || null;
+        context = context || doc;
 
         var result = doc.evaluate(expr, context, resolver, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
         var a = [];
-        for(var i = 0; i < result.snapshotLength; i++) {
+        var i;
+        for (i = 0; i < result.snapshotLength; i++) {
             a[i] = result.snapshotItem(i);
         }
         return a;
@@ -143,21 +146,21 @@ var performXSL = {
                                 this.xulResolver);
         var prestyles = this.docEvaluateArray('//xul:treeitem/xul:treerow/xul:treecell[6]/@value', doc, doc,
                                 this.xulResolver);
-
-        for (var i=0; i < urls.length; i++) {
-                var url = urls[i].nodeValue;
-                var regexp = new RegExp('^'  +  regexEscape(url).replace(/\\\*/g, '.*')   +  '\\/?$',  '');
-                if (url.match(/slashdot/)) {
-//                                alert('^'  +  regexEscape(url).replace(/\*/g, '.*')   +  '\/?$');return false;
-                }
-                if ((ignoreEnable || enableds[i].nodeValue === 'true') && currurl.match(regexp)) {
-                        assignCB(xsls[i].nodeValue.replace(/\\\\n/g, '\n'), fileexts[i].nodeValue, (prestyles[i].nodeValue === 'true'));
-                        return true;
-                }
+        var i, url, regexp;
+        for (i = 0; i < urls.length; i++) {
+            url = urls[i].nodeValue;
+            regexp = new RegExp('^'  +  regexEscape(url).replace(/\\\*/g, '.*')   +  '\\/?$',  '');
+            // if (url.match(/slashdot/)) {
+                // alert('^'  +  regexEscape(url).replace(/\*/g, '.*')   +  '\/?$');return false;
+            // }
+            if ((ignoreEnable || enableds[i].nodeValue === 'true') && currurl.match(regexp)) {
+                    assignCB(xsls[i].nodeValue.replace(/\\\\n/g, '\n'), fileexts[i].nodeValue, (prestyles[i].nodeValue === 'true'));
+                    return true;
+            }
         }
         return false;
     },
-    saveFile : function (text) {
+    saveFile: function () { // text
     },
     writeFile : function (content, outputext, charset) {
         charset = (!charset) ? 'UTF-8' : charset;
@@ -165,7 +168,7 @@ var performXSL = {
 
         if (!outputext) {
             outputext = this.branch.getComplexValue('outputext', Ci.nsIPrefLocalizedString).data;
-            if (outputext == '') {
+            if (outputext === '') {
                 outputext = 'xml';
             }
         }
@@ -214,12 +217,12 @@ var performXSL = {
         var lis = fis.QueryInterface(Ci.nsILineInputStream);
         var lineData = {};
         var cont;
-        var lines = '';
+        var line, lines = '';
         do {
             cont = lis.readLine(lineData);
-            var line = converter.ConvertToUnicode(lineData.value);
+            line = converter.ConvertToUnicode(lineData.value);
             // Now you can do something with line
-            lines += line+'\n';
+            lines += line + '\n';
         } while (cont);
         fis.close();
         return lines;
@@ -238,7 +241,7 @@ var performXSL = {
     testwellformed: function(xmldoc) {
         var parser = new DOMParser();
         var xmltest = parser.parseFromString(xmldoc, 'application/xml');
-        if (xmltest.documentElement.nodeName == 'parsererror' && ($('xslcontent').value.match(/doc\(\)/) || $('xslcontent').value.match(/collection\(\)/))) { // Don't report parsing error if the XSL doesn't rely on the default
+        if (xmltest.documentElement.nodeName === 'parsererror' && ($('xslcontent').value.match(/doc\(\)/) || $('xslcontent').value.match(/collection\(\)/))) { // Don't report parsing error if the XSL doesn't rely on the default
             alert(this.strbundle.getString('extensions.xslresults.err.parsexml'));
             return false;
         }
@@ -277,7 +280,7 @@ var performXSL = {
             onStopRequest : function (req, context) {
                 // Should this first line even be there?
                 if (!keepstyles) {
-                    this.buf = this.buf.replace(/\<\?xml-stylesheet[^>]*type\s*=\s*(["'])[^\s'"]*(xsl|application\/xml)[^'"]*\1[^>]*\>/, ''); // If converting to DOM, could just remove first children which are XSL xml-stylesheet's until root
+                    this.buf = this.buf.replace(/<\?xml-stylesheet[^>]*type\s*=\s*(["'])[^\s'"]*(xsl|application\/xml)[^'"]*\1[^>]*\>/, ''); // If converting to DOM, could just remove first children which are XSL xml-stylesheet's until root
                 //this.buf = this.buf.replace(/&lt;\?xml-stylesheet[^&]*type\s*=\s*(['"'])[^\1]*(xsl|application\/xml)[^\1]*\1[^>]*&gt;/, ''); // If converting to DOM, could just remove first children which are XSL xml-stylesheet's until root
                 }
                 if (cb2) {
@@ -331,12 +334,14 @@ var performXSL = {
         //}
     },
     finish : function(/* String or DOM */ stylesh, /* String */ xmldata, /* callback object*/ cbo, enginetype) {
+        var parser;
         if (typeof stylesh === 'string') {
-            var parser = new DOMParser();
+            parser = new DOMParser();
             stylesh = parser.parseFromString(stylesh, 'application/xml');
         }
+        var xn1;
         try {
-            var xn1 = stylesh.getElementsByTagNameNS('http://www.w3.org/1999/XSL/Transform', 'stylesheet')[0].childNodes;
+            xn1 = stylesh.getElementsByTagNameNS('http://www.w3.org/1999/XSL/Transform', 'stylesheet')[0].childNodes;
         }
         catch (e){
             alert(this.strbundle.getString('extensions.xslresults.err.xslpoorlyformed'));
@@ -344,11 +349,12 @@ var performXSL = {
         }
 
         var hasoutput = false;
-        for (var j=0; j < xn1.length; j++) {
-            var xndChild = xn1[j];
+        var j, method, xndChild;
+        for (j = 0; j < xn1.length; j++) {
+            xndChild = xn1[j];
             if (xndChild.localName === 'output' && xndChild.namespaceURI === 'http://www.w3.org/1999/XSL/Transform' &&
                   xndChild.hasAttribute('method')) {
-                var method = xndChild.getAttribute('method');
+                method = xndChild.getAttribute('method');
                 hasoutput = true;
                 break;
             }
@@ -379,10 +385,11 @@ var performXSL = {
             extension = 'xml';
         }
         var engineUndefined = false;
-        if (enginetype == undefined) {
-                enginetype = this.prefs.getIntPref('extensions.xslresults.enginetype');
-                engineUndefined = true;
+        if (enginetype === undefined) {
+            enginetype = this.prefs.getIntPref('extensions.xslresults.enginetype');
+            engineUndefined = true;
         }
+        var data;
         // Transformiix (Firefox built-in XSL engine)
         if (enginetype === 1) {
             var processor = new XSLTProcessor();
@@ -408,10 +415,10 @@ var performXSL = {
             // var charset = newDocument.characterSet;
             var charset = 'UTF-8';
 
-            if (!hasext && typeof(newDocument) == 'object' && newDocument instanceof XMLDocument) {
+            if (!hasext && typeof newDocument === 'object' && newDocument instanceof XMLDocument) {
                 extension = 'xml';
             }
-            else if (!hasext && typeof(newDocument) == 'object' && newDocument instanceof HTMLDocument) {
+            else if (!hasext && typeof newDocument === 'object' && newDocument instanceof HTMLDocument) {
                 extension = 'html';
             }
             else if (!hasext) {
@@ -445,7 +452,7 @@ var performXSL = {
             }
             */
             var s = new XMLSerializer();
-            var data = s.serializeToString(newDocument);
+            data = s.serializeToString(newDocument);
 
             // Hackish, but works:
             data = data.replace('<transformiix:result xmlns:transformiix="http://www.mozilla.org/TransforMiix">', '');
@@ -460,17 +467,18 @@ var performXSL = {
         }
         var outputext = this.branch.getComplexValue('outputext', Ci.nsIPrefLocalizedString).data;
 
-        if (outputext != '') {
+        if (outputext !== '') {
             extension = outputext; // 'extension' will otherwise be as determined above
         }
         cbo.processResult.call(this, data, extension); // Apply 'this' to current context
     },
     // Adapted a portion of script from http://www.quirksmode.org/js/detect.html used here for OS detection
     searchString: function (data) {
-        for (var i=0;i<data.length;i++)    {
-            var dataString = data[i].string;
+        var i, dataString;
+        for (i = 0; i < data.length; i++) {
+            dataString = data[i].string;
             if (dataString) {
-                if (dataString.indexOf(data[i].subString) != -1) {
+                if (dataString.indexOf(data[i].subString) !== -1) {
                     return data[i].identity;
                 }
             }

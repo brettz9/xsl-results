@@ -1,3 +1,4 @@
+/*global pref*/
 // See http://kb.mozillazine.org/Localize_extension_descriptions
 pref("extensions.xslresults@brett.zamir.description", "chrome://xslresults/locale/xslresults.properties");
 
