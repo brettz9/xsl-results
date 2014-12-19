@@ -47,8 +47,8 @@ var executeXSL = {
     loadPageXSL : function () {
         var currurl = window.opener.getBrowser().selectedBrowser.webNavigation.currentURI.spec;
         function assignCB (xsl, fileext) {
-                $('xslcontent').value = xsl;
-                $('outputext').value = fileext;
+            $('xslcontent').value = xsl;
+            $('outputext').value = fileext;
         }
         if (!this.performXSL.findMatchedURL(currurl, this.xmlDoc, assignCB, true)) {
             alert(this.strbundle.getString('extensions.xslresults.loadPageXSLError'));
@@ -117,14 +117,14 @@ var executeXSL = {
         var xsl = this.escapeXML($('xmlSitePref.xsl').value);
 
         $('treechildren').appendChild(this.DOMParse(
-                '<treeitem xmlns="'+this.xulns+'"><treerow><treecell label="'+name+'"/><treecell label="'+url+'"/><treecell label="'+xsl+'"/>'+
+                '<treeitem xmlns="'+this.xulns+'"><treerow><treecell label="' + name + '"/><treecell label="' + url + '"/><treecell label="' + xsl + '"/>' +
                         '<treecell label="xml"/><treecell value="false"/><treecell value="false"/>'+
                                 '</treerow></treeitem>' /* <treecell value="false"/><treecell value="false"/> */
               ).documentElement
         );
 
         var t = $('querytree');
-        t.view.selection.select(t.view.rowCount-1);
+        t.view.selection.select(t.view.rowCount - 1);
         t.focus();
         this.updateView();
     },
@@ -170,35 +170,12 @@ var executeXSL = {
         $('xmlSitePref.url').value = url;
         var name = t.view.getCellText(t.currentIndex, t.columns.getNamedColumn('queryname'));
         $('xmlSitePref.name').value = name;
-        // var xsl = t.view.getCellText(t.currentIndex, t.columns.getNamedColumn('queryxsl'));
 
-        /*/
-        for (var i=1, att; i <= 6; i++) {
-               if (i === 3) {
-                       continue; // XQueries may differ given whitespace (normalize XPath function?)
-               }
-               if (i <= 4) {
-                       att = 'label';
-               }
-               else {
-                       att = 'value';
-               }
-               var xqueries = this.performXSL.docEvaluateArray('//xul:treeitem/xul:treerow/xul:treecell['+i+']/@'+att, document, t,
-                                            this.performXSL.xulResolver);
-               for (var j=0; j < xqueries.length; j++) {
-                       xqueries[j].value === ;
-               }
-        }
-        */
         var xsl = this.docEvaluate('//xul:treeitem/xul:treerow[xul:treecell[1]/@label = "'+name+'" and xul:treecell[2]/@label = "'+url+'"]/xul:treecell['+3+']/@label', document, t,
                                             this.performXSL.xulResolver);
-        /*/for (var i=0; i < xqueries.length; i++) {
-        alert(xqueries[i].value);
-        }
-        */
+
         $('xmlSitePref.xsl').value = xsl.value.replace(/\\\\n/g, '\n');
-        //*/
-        //$('treechildren');
+
         this.updateURL(url);
         this.updateView();
     },
@@ -215,12 +192,6 @@ var executeXSL = {
     },
     loadSitePrefsData : function () {
         // the path may use forward slash ('/') as the delimiter
-
-        // var filecontents = this.performXSL.loadfile('content/querydata.xml');
-        //alert(filecontents);
-        // var treechildren = new XML(filecontents.replace(/^<\?xml\s+version\s*=\s*(["'])[^\1]+\1[^?]*\?>/, ''));
-        //              this.xmlDoc = document.implementation.createDocument('', 'test', null);
-        //              this.xmlDoc.load('querydata.xml');
 
         this.xmlDoc = this.performXSL.loadfile('xslresults_querydata.xml');
         if (typeof this.xmlDoc === 'string' && (!this.xmlDoc || this.xmlDoc.match(/^\s*$/))) {
@@ -250,21 +221,16 @@ var executeXSL = {
             }, 500
         );
     },
-    docEvaluate : function (expr, doc, context, resolver) {
+    docEvaluate: function (expr, doc, context, resolver) {
         doc = doc || document;
         resolver = resolver || null;
         context = context || doc;
 
         var result = doc.evaluate(expr, context, resolver, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-/*/                var a = [];
-        for(var i = 0; i < result.snapshotLength; i++) {
-                a[i] = result.snapshotItem(i);
-        }
-        return a;*/
         return result.snapshotItem(0);
     },
-    sortFields : {},
-    sort : function (col) {
+    sortFields: {},
+    sort: function (col) {
         if (typeof this.xmlDoc === 'string' && (!this.xmlDoc || this.xmlDoc.match(/^\s*$/))) {
             // New additions
             this.xmlDoc = document.implementation.createDocument(null, '', null);
@@ -282,13 +248,13 @@ var executeXSL = {
         var result = this.docEvaluate('//xul:treeitem[1]/xul:treerow[1]/xul:treecell['+colindex+']/@'+sortAtt+'[1]', document, t,
                                     this.performXSL.xulResolver);
         if (result == null) {
-                sortAtt = 'value';
-                sortField = col.getAttribute('value');
+            sortAtt = 'value';
+            sortField = col.getAttribute('value');
         }
         this.sortFields[sortField] = !this.sortFields[sortField];
         var order = 'descending';
         if (!this.sortFields[sortField]) {
-                order = 'ascending';
+            order = 'ascending';
         }
 
         var processor = new XSLTProcessor();
@@ -412,7 +378,7 @@ var executeXSL = {
 //              var that = this;
         var xslfilename = $('xslfile').value;
         if (xslfilename === '') {
-              return;
+            return;
         }
 
         if (xslfilename.substr(0, 7) === 'http://') {
@@ -422,7 +388,7 @@ var executeXSL = {
             req.open('GET', xslfilename, true);
             req.onreadystatechange = function () {
                 if (req.readyState === 4) {
-                    if(req.status === 200) {
+                    if (req.status === 200) {
                         // dump(req.responseText);
                         //that.finish(/*XSL file contents*/ req.responseXML, /* XML to xform*/ xmldata, cbo);
                         $('xslcontent').value = new XMLSerializer().serializeToString(req.responseXML);
@@ -547,9 +513,7 @@ var executeXSL = {
         var el = $(id);
         var prop;
         for (prop in el) {
-//            if (abc !== 'mInputField' && abc !== 'maxLength' && abc !== 'size' && abc !== 'nodeValue' && abc !== 'firstChild' && abc !== 'lastChild' && abc !== 'prefix' && abc !== 'database' && abc !== 'builder') {
             console.log(prop+'::: '+el[prop]);
-//            }
         }
     },
     doOK : function() {
@@ -648,34 +612,26 @@ var executeXSL = {
         }
 
         var urls = this.performXSL.docEvaluateArray('//xul:treeitem/xul:treerow/xul:treecell[2]/@label', doc, doc, this.performXSL.xulResolver);
-/*/    var xsls = this.performXSL.docEvaluateArray('//xul:treeitem/xul:treerow/xul:treecell[3]/@label', doc, doc, 
-                                this.performXSL.xulResolver);
-        var fileexts = this.performXSL.docEvaluateArray('//xul:treeitem/xul:treerow/xul:treecell[4]/@label', doc, doc,
-                                this.performXSL.xulResolver);*/
         var enableds = this.performXSL.docEvaluateArray('//xul:treeitem/xul:treerow/xul:treecell[5]/@value', doc, doc, this.performXSL.xulResolver);
-//     var prestyles = this.performXSL.docEvaluateArray('//xul:treeitem/xul:treerow/xul:treecell[6]/@value', doc, doc, this.performXSL.xulResolver);
 
         var i, url, urlArray;
         for (i = 0, urlArray = []; i < urls.length; i++) {
             url = urls[i].value;
             if (urlArray[url] && enableds[i].value === 'true') {
-                    alert(this.strbundle.getString('extensions.xslresults.moreThanOneQuery'));
-                    return false;
+                alert(this.strbundle.getString('extensions.xslresults.moreThanOneQuery'));
+                return false;
             }
             if (enableds[i].value === 'true') {
-                    urlArray[url] = true;
+                urlArray[url] = true;
             }
-            // var regexp = new RegExp('^'  +  RegExp.escape(url).replace(/\*/, '.*')   +  '\/?$',  '');
         }
         return true;
     },
     onUnLoad : function() {
         // Serialize XML for tree and save to file
-//      alert(this.xmlDoc);
-        file_put_contents ('xslresults_querydata.xml', this.serialize(this.xmlDoc));
+        file_put_contents('xslresults_querydata.xml', this.serialize(this.xmlDoc));
                 
         return this.checkForDups(this.xmlDoc);
-  //              alert(this.serialize(this.xmlDoc));
     },
     // Adapted a portion of script from http://www.quirksmode.org/js/detect.html used here for OS detection
 

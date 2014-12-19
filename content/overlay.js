@@ -81,13 +81,7 @@ var xslresults = {
                 }
                 var href = e.target.location.href;
                 if (href !== 'about:blank' && e.originalTarget.nodeName === '#document') { // Need latter test to avoid xul:images (favicons) per http://developer.mozilla.org/en/docs/Code_snippets:On_page_load
-                    // If user wants to auto-apply XSLT 2.0 processing instructions, do so
-
-    /*                           if (PHP.in_array(e.originalTarget.contentType,  // We make the faulty assumption that the result will be XML (so we don't need to test every single HTML document the browser loads
-                                    ['text/xml', 'application/xml', 'application/xhtml', 'text/xsl', 'application/xslt+xml']
-                      )) {*/
-
-                    // <?xml-stylesheet href="abc" type="text/xsl"?>
+                    
                     // Including file retrieval here to be able to get new results after changing in XSL window
                     var xmlDoc0 = that.performXSL.loadfile('xslresults_querydata.xml');
                     if (typeof xmlDoc0 === 'string' && (!xmlDoc0 || xmlDoc0.match(/^\s*$/))) {
@@ -180,21 +174,6 @@ var xslresults = {
             var stylesheetURL = false;
             var cb1 = function (stylesheet) {
                 // 3) apply XSL to XML
-//                          alert(stylesheet);
-                          //var stylesheetDOM = new DOMParser().parseFromString(stylesheet, 'application/xml');
-//                          alert(new XMLSerializer().serializeToString(stylesheetDOM));
-/*
-                          var processor = new XSLTProcessor();
-                          try {
-                                  processor.importStylesheet(stylesheetDOM);
-                          }
-                          catch(e) {
-                                  alert(e);
-                                  return;
-                          }*/
-                          //var xmldoc = new DOMParser().parseFromString(buf, 'application/xml');
-                          //var newDocument = processor.transformToDocument(xmldoc);
-                          //var content = new XMLSerializer().serializeToString(newDocument);
                 var cb2 = {
                     processResult : function (data, ext) {
                         if (textbox) {
@@ -225,7 +204,6 @@ var xslresults = {
             else {
                 alert('No stylesheet was found');
             }
-    // this.performXSL.getPrestyleDoc(href, xsl, cbo, window.content.characterSet, null, true); // Grab with stylesheet data
         };
         this.performXSL.getPrestyleDoc(href, null, null, 'UTF-8', cb0, true); // window.content.document.characterSet
     },
@@ -237,9 +215,7 @@ var xslresults = {
         var win = window.openDialog(); // plain window.open doesn't work right
         var doc = win.document;
         doc.open();
-        // <?xml-stylesheet type="application/xslt+xml" href="xsl.xsl" ?>
 
-        // '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Output</title></head>' +
         data = '<textarea cols="100%" rows="40">' + data + '</textarea>';
         doc.writeln(data);
         doc.close();
