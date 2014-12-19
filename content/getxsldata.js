@@ -186,14 +186,14 @@ var executeXSL = {
                var xqueries = this.performXSL.docEvaluateArray('//xul:treeitem/xul:treerow/xul:treecell['+i+']/@'+att, document, t,
                                             this.performXSL.xulResolver);
                for (var j=0; j < xqueries.length; j++) {
-                       xqueries[j].nodeValue === ;
+                       xqueries[j].value === ;
                }
         }
         */
         var xsl = this.docEvaluate('//xul:treeitem/xul:treerow[xul:treecell[1]/@label = "'+name+'" and xul:treecell[2]/@label = "'+url+'"]/xul:treecell['+3+']/@label', document, t,
                                             this.performXSL.xulResolver);
         /*/for (var i=0; i < xqueries.length; i++) {
-        alert(xqueries[i].nodeValue);
+        alert(xqueries[i].value);
         }
         */
         $('xmlSitePref.xsl').value = xsl.value.replace(/\\\\n/g, '\n');
@@ -657,12 +657,12 @@ var executeXSL = {
 
         var i, url, urlArray;
         for (i = 0, urlArray = []; i < urls.length; i++) {
-            url = urls[i].nodeValue;
-            if (urlArray[url] && enableds[i].nodeValue === 'true') {
+            url = urls[i].value;
+            if (urlArray[url] && enableds[i].value === 'true') {
                     alert(this.strbundle.getString('extensions.xslresults.moreThanOneQuery'));
                     return false;
             }
-            if (enableds[i].nodeValue === 'true') {
+            if (enableds[i].value === 'true') {
                     urlArray[url] = true;
             }
             // var regexp = new RegExp('^'  +  RegExp.escape(url).replace(/\*/, '.*')   +  '\/?$',  '');

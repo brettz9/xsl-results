@@ -152,13 +152,13 @@ var performXSL = {
                                 this.xulResolver);
         var i, url, regexp;
         for (i = 0; i < urls.length; i++) {
-            url = urls[i].nodeValue;
+            url = urls[i].value;
             regexp = new RegExp('^'  +  regexEscape(url).replace(/\\\*/g, '.*')   +  '\\/?$',  '');
             // if (url.match(/slashdot/)) {
                 // alert('^'  +  regexEscape(url).replace(/\*/g, '.*')   +  '\/?$');return false;
             // }
-            if ((ignoreEnable || enableds[i].nodeValue === 'true') && currurl.match(regexp)) {
-                    assignCB(xsls[i].nodeValue.replace(/\\\\n/g, '\n'), fileexts[i].nodeValue, (prestyles[i].nodeValue === 'true'));
+            if ((ignoreEnable || enableds[i].value === 'true') && currurl.match(regexp)) {
+                    assignCB(xsls[i].value.replace(/\\\\n/g, '\n'), fileexts[i].value, (prestyles[i].value === 'true'));
                     return true;
             }
         }
