@@ -362,9 +362,6 @@ var executeXSL = {
 
         $('extensions.xslresults.enginetype').selectedIndex = this.branch.getIntPref('enginetype');
 
-
-        $('extensions.xslresults.applyXSLT').checked = this.branch.getBoolPref('applyXSLT');
-        $('extensions.xslresults.applyXSLT2').checked = this.branch.getBoolPref('applyXSLT2');
                 
         $('extensions.xslresults.xmlstripdtd').checked = this.branch.getBoolPref('xmlstripdtd');
         $('extensions.xslresults.htmlstripdtd').checked = this.branch.getBoolPref('htmlstripdtd');
@@ -622,32 +619,16 @@ var executeXSL = {
                 break;
         }
     },
-    applyXSLT : function (e) {
-        this.setprefs(e);
-        if (this.branch.getBoolPref('applyXSLT') === true) {
-    //                        $('extensions.xslresults.applyXSLT2').checked = true;
-                $('extensions.xslresults.applyXSLT2').disabled = true;
-        }
-        else {
-                $('extensions.xslresults.applyXSLT2').disabled = false;
-        }
-        return false;
-    },
     resetdefaults: function() {
         this.branch0.setIntPref('enginetype', 0);
         $('extensions.xslresults.enginetype').selectedIndex = 0;
         this.branch.setBoolPref('xmlstripdtd', true);
         this.branch.setBoolPref('htmlstripdtd', true);
         this.branch.setCharPref('open_where', 'open_tab');
-        this.branch.setBoolPref('applyXSLT', false);
-        this.branch.setBoolPref('applyXSLT2', true);
                 
         $('extensions.xslresults.xmlstripdtd').checked = true;
         $('extensions.xslresults.htmlstripdtd').checked = true;
         $('extensions.xslresults.open_where').selectedItem = $('extensions.xslresults.open_tab');
-        $('extensions.xslresults.applyXSLT2').checked = true;
-        $('extensions.xslresults.applyXSLT').checked = false;
-        $('extensions.xslresults.applyXSLT2').disabled = false;
                 
         $('outputext').value = 'xml';
 

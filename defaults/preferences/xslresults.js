@@ -10,9 +10,6 @@ pref("extensions.xslresults@brett.zamir.description", "chrome://xslresults/local
 // extensions.xslresults.0jardir_Mac= 
 
 
-pref("extensions.xslresults.applyXSLT", false);
-pref("extensions.xslresults.applyXSLT2", true);
-
 
 pref("extensions.xslresults.defaultxsl", "chrome://xslresults/locale/xslresults.properties");
 pref("extensions.xslresults.outputext", "chrome://xslresults/locale/xslresults.properties");

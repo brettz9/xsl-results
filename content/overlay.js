@@ -86,86 +86,11 @@ var xslresults = {
                 if (href !== 'about:blank' && e.originalTarget.nodeName === '#document') { // Need latter test to avoid xul:images (favicons) per http://developer.mozilla.org/en/docs/Code_snippets:On_page_load
                     // If user wants to auto-apply XSLT 2.0 processing instructions, do so
 
-                    /*
-                    if (that.branch.getBoolPref('applyXSLT') ||
-                            that.branch.getBoolPref('applyXSLT2')) {
-                    }
-                    */
     /*                           if (PHP.in_array(e.originalTarget.contentType,  // We make the faulty assumption that the result will be XML (so we don't need to test every single HTML document the browser loads
                                     ['text/xml', 'application/xml', 'application/xhtml', 'text/xsl', 'application/xslt+xml']
                       )) {*/
 
-                    if (PHP.in_array(e.originalTarget.contentType,  // We make the faulty assumption that the result will be XML (so we don't need to test every single HTML document the browser loads
-                                    ['text/xml', 'application/xml', 'application/xhtml', 'text/xsl', 'application/xslt+xml']) ||
-                        PHP.in_array(href.substring(href.lastIndexOf('.')+1),  /* We make the faulty assumption that the file determines whether it was originally XML (so we don't need to test every single HTML document the browser loads */
-                                    ['xml', 'rdf', 'xhtml', 'xsl', 'svg']
-                      )) {
-                        var i, pis;
-                        if (that.branch.getBoolPref('applyXSLT') ||
-                                that.branch.getBoolPref('applyXSLT2')
-                            ) {
-    //                                    var xsl = '';
-
-                            var cb0 = function (buf) { // Gets XML
-                                var wininfo = that.performXSL.getWindowContent(window);
-                                if ((wininfo.ctype === 'xml' && that.branch.getBoolPref('xmlstripdtd')) ||
-                                            (wininfo.ctype=== 'html' && that.branch.getBoolPref('htmlstripdtd'))) {
-                                    buf = buf.replace(/<!DOCTYPE[^>\[]*\[[^\]]*\]>/g, '').replace(/<!DOCTYPE[^>]*>/g, '');
-                                }
-                                pis = that.docEvaluateArray('/processing-instruction("xml-stylesheet")', e.originalTarget);
-
-                                var results, type, results2, absHref, cb1;
-                                for (i = 0; i < pis.length; i++) {
-                                    results = pis[0].nodeValue.match(/(^|\s+)type\s*=\s*(['"])([^'"]*)\2/);
-                                    type = results[3];
-
-                                    if ((PHP.in_array(type, ['text/xsl', 'application/xml', 'application/xslt+xml']) &&
-                                          that.branch.getBoolPref('applyXSLT')) ||
-                                            (type === 'application/xslt+xml' &&
-                                              that.branch.getBoolPref('applyXSLT2'))
-                                        ) {
-
-                                        results2 = pis[0].nodeValue.match(/(^|\s+)href\s*=\s*(['"])([^'"]*)\2/);
-                                        absHref = results2[3];
-                                        if (!absHref.match(/^(https?|file):\/\//)) {
-                                            absHref = e.originalTarget.documentURIObject.resolve(absHref);
-                                        }
-                                        cb1 = function (stylesheet) {
-                                            var cb2 = {
-                                                processResult : function (data, ext) {
-                                                    /*if (textbox) {
-                                                          data = '<textarea cols="100%" rows="40">'+data+'</textarea>';
-                                                          ext = 'html';
-                                                    }*/
-                                                    /*
-                    var where = that.branch.getBoolPref('open_where');
-                                                    if (where === 'open_window') {
-                                                          that.openfile(data, ext); // works to open a new window
-                                                    }
-                        else if (where === 'open_tab') {
-                            that.openTab(data, ext);
-                        }
-                                                    else {
-                                                    */
-                                                      // var charset = newDocument.characterSet; // Do we really need to do this?
-                                                    var charset = 'UTF-8';
-                                                    var filepath = this.writeFile(data, ext, charset); // Any way (or need) to dynamically change extension here?
-                                                    e.originalTarget.location.href = filepath;
-                                                    // }
-                                                }
-                                            };
-
-                                            that.performXSL.finish(stylesheet, buf, cb2, 1); // 1 is Transformiix
-                                        };
-                                        that.performXSL.getPrestyleDoc(absHref, null, null, 'UTF-8', cb1, true);
-                                    }
-                                }
-    //                      var wininfo = that.performXSL.getWindowContent(e.target.defaultView); // defaultView grabs window owner of this document
-    //                      that.performXSL.getDataForXSL(wininfo.content, xsl, cbo);
-                            };
-                            that.performXSL.getPrestyleDoc(href, null, null, 'UTF-8', cb0, true); // window.content.document.characterSet
-                        }
-                    } // <?xml-stylesheet href="abc" type="text/xsl"?>
+                    // <?xml-stylesheet href="abc" type="text/xsl"?>
                     // Including file retrieval here to be able to get new results after changing in XSL window
                     var xmlDoc0 = that.performXSL.loadfile('xslresults_querydata.xml');
                     if (typeof xmlDoc0 === 'string' && (!xmlDoc0 || xmlDoc0.match(/^\s*$/))) {

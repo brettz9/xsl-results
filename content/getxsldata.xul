@@ -196,8 +196,10 @@ onselect="executeXSL.populateSitePrefBoxes(event.target);"
 				
 				<groupbox>
 					<caption label="&applyingXSLT;"/>
+                    <!--
 					<checkbox id="extensions.xslresults.applyXSLT" label="&applyXSLT;" onclick="return executeXSL.applyXSLT(event);" onkeypress="return executeXSL.applyXSLT(event);"/>
 					<checkbox id="extensions.xslresults.applyXSLT2" label="&applyXSLT2;" onclick="executeXSL.setprefs(event);return false;" onkeypress="executeXSL.setprefs(event);return false;"/>
+                    -->
 				</groupbox>
 				
 				<vbox align="center">
