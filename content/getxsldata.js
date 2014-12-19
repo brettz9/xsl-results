@@ -14,7 +14,7 @@ var $ = function (id, doc) {
 function file_put_contents (file, data, charset) { // Fix: allow file to be placed outside of profile directory
 
     // Can be any character encoding name that Mozilla supports // Brett: Setting earlier, but even with a different setting, it still seems to save as UTF-8
-    charset = (!charset) ? 'UTF-8' : charset;
+    charset = charset || 'UTF-8';
 
     // the path may use forward slash ('/') as the delimiter
 
@@ -24,8 +24,8 @@ function file_put_contents (file, data, charset) { // Fix: allow file to be plac
         file.append(tempfilename);
     }
 
-    if( !file.exists() ) {   // if it doesn't exist, create  // || !file.isDirectory()
-            file.create(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt('0777', 8)); // DIRECTORY_TYPE
+    if (!file.exists()) {   // if it doesn't exist, create  // || !file.isDirectory()
+        file.create(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt('0777', 8)); // DIRECTORY_TYPE
     }
     // file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0664); // for temporary
 
@@ -372,12 +372,13 @@ var executeXSL = {
             $('outputext').disabled = true;
         }
 
-        // From http://developer.mozilla.org/en/docs/Code_snippets:File_I/O
-        this.extid = 'xslresults@brett.zamir'; // the extension's id from install.rdf
-        var em = Cc['@mozilla.org/extensions/manager;1'].
-                            getService(Ci.nsIExtensionManager);
+        var extid = 'xslresults@brett.zamir'; // the extension's id from install.rdf
+        Components.utils['import']('resource://gre/modules/AddonManager.jsm');
         // the path may use forward slash ('/') as the delimiter
-        this.extdir = em.getInstallLocation(this.extid);
+        var that = this;
+        AddonManager.getAddonByID(extid, function (addon) {
+            that.addon = addon;
+        });
 
         $('helppanel').setAttribute('src', this.getUrlSpec('readme.xhtml'));
 
@@ -498,9 +499,7 @@ var executeXSL = {
     },
     getUrlSpec : function (myfile) {
         // returns nsIFile for the given extension's file
-        var file = this.extdir.getItemFile(this.extid, myfile);
-        var ios = Cc['@mozilla.org/network/io-service;1'].getService(Ci.nsIIOService);
-        var url = ios.newFileURI(file);
+        var url = this.addon.getResourceURI(myfile);
         return url.spec;
     },
     toggleOutputExt: function() {

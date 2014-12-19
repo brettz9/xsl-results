@@ -35,12 +35,14 @@ var performXSL = {
         this.prefs = Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService);
         this.branch = this.prefs.getBranch('extensions.xslresults.');
 
-        // From http://developer.mozilla.org/en/docs/Code_snippets:File_I/O
-        this.extid = 'xslresults@brett.zamir'; // the extension's id from install.rdf
-        this.em = Cc['@mozilla.org/extensions/manager;1'].
-                            getService(Ci.nsIExtensionManager);
+        var extid = 'xslresults@brett.zamir'; // the extension's id from install.rdf
+        Components.utils['import']('resource://gre/modules/AddonManager.jsm');
         // the path may use forward slash ('/') as the delimiter
-        this.extdir = this.em.getInstallLocation(this.extid);
+        var that = this;
+        AddonManager.getAddonByID(extid, function (addon) {
+            that.addon = addon;
+        });
+
         this.OS = this.searchString(this.dataOS);
         this.OSfile_slash = (this.OS === 'Windows') ? '\\' : '/'; // The following doesn't seem to auto-convert forward slashes to backslashes, so this is needed
     },
@@ -61,52 +63,54 @@ var performXSL = {
         var ctype = 'xml';
         var xhtmlashtml = false;
         switch (contentType) {
-                case 'text/plain':
-                case 'text/html':
-                        ctype = 'html';
-                        if (content.match(/<!DOCTYPE([^>]*)XHTML/)) { // Consider XHTML served as text/html to be XML for sake of DTD stripping since its DTD should be XML-style
-                                ctype = 'xml';
-                                xhtmlashtml = true; // But will need clean up
-                        }
-                        break;
-                case 'text/xml':
-                case 'application/xml':
-                case 'application/xhtml+xml':
-                    ctype = 'xml';break;
-                default:
-                    ctype = 'xml';break;
+            case 'text/plain':
+            case 'text/html':
+                ctype = 'html';
+                if (content.match(/<!DOCTYPE([^>]*)XHTML/)) { // Consider XHTML served as text/html to be XML for sake of DTD stripping since its DTD should be XML-style
+                    ctype = 'xml';
+                    xhtmlashtml = true; // But will need clean up
+                }
+                break;
+            case 'text/xml':
+            case 'application/xml':
+            case 'application/xhtml+xml':
+                ctype = 'xml';break;
+            default:
+                ctype = 'xml';break;
         }
 
         // Convert imperfect HTML into well-formed XML, basing it off of Firefox's DOM representation of HTML documents
         // Fix: Todo - deal with malformedness due to double hyphens elsewhere within a comment
         if (ctype === 'html' || xhtmlashtml) { // Only reduce to capital letters when invoking for HTML (due to bug in Firefox)
             content = content.replace(
-                  /<([^!>\s]+)(\s|>)/g,
-                  function(tag, tagname, end) {
-                          return '<'+tagname.toLowerCase()+end;
-                  }
-            ); // Will this work with CDATA? Seems to work ok because of Firefox's DOM conversion process...
-            content = content.replace(
-                  /<!DOCTYPE(\s+)([^>\s]*)([\s>])/g,
-                  function (whole, ws1, root, ws2) {
-                          return '<!DOCTYPE' + ws1 + root.toLowerCase() + ws2;
-                  }
-            );
+                    /<([^!>\s]+)(\s|>)/g,
+                    function(tag, tagname, end) {
+                        return '<'+tagname.toLowerCase()+end;
+                    }
+                ).replace(
+                    // Will this work with CDATA? Seems to work ok because of Firefox's DOM conversion process...
+                    /<!DOCTYPE(\s+)([^>\s]*)([\s>])/g,
+                    function (whole, ws1, root, ws2) {
+                        return '<!DOCTYPE' + ws1 + root.toLowerCase() + ws2;
+                    }
+                );
             // Deal with multiple hyphens inside of a comment, since Firefox's DOM parser doesn't fix these
             var hyph_comm_patt = /<!--([^>]*)--+([^>])/g;
             while (content.match(hyph_comm_patt)) {
-                  content = content.replace(hyph_comm_patt, '<!--$1 - $2');
+                content = content.replace(hyph_comm_patt, '<!--$1 - $2');
             }
-            content = content.replace(/<!--(-*)([^>]*[^>\-])(-*)-->/g, '<!--$2-->'); // Firefox allows comments with extra hyphens to display in HTML (including in its inner DOM representation), but will not be valid as XML.
-
-            // Overcome a few known obfuscation techniques used at some sites to prevent querying:
             content = content.replace(
-                  /<!DOCTYPE html PUBLIC "-\/\/W3C\/\/DTD HTML 4\.01 Transitional\/\/EN">/g,
-                  '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'
+                // Firefox allows comments with extra hyphens to display in HTML (including in its inner DOM representation), but will not be valid as XML.
+                /<!--(-*)([^>]*[^>\-])(-*)-->/g, '<!--$2-->'
+            ).replace(
+                // Overcome a few known obfuscation techniques used at some sites to prevent querying:
+                /<!DOCTYPE html PUBLIC "-\/\/W3C\/\/DTD HTML 4\.01 Transitional\/\/EN">/g,
+                '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'
+            ).replace(
+                // Deobfuscation
+                /\s\)=""/g, ''
             );
-            // Deobfuscation
-            content = content.replace(/\s\)=""/g, '');
-//                      content = content.replace(/(\<[^>]*)(\$)([^>]*\>)/g, '$1>'); // was overly aggressive
+            // content = content.replace(/(\<[^>]*)(\$)([^>]*\>)/g, '$1>'); // was overly aggressive
         }
 
         if ((ctype === 'xml' && this.prefs.getBoolPref('extensions.xslresults.xmlstripdtd')) ||
@@ -163,7 +167,7 @@ var performXSL = {
     saveFile: function () { // text
     },
     writeFile : function (content, outputext, charset) {
-        charset = (!charset) ? 'UTF-8' : charset;
+        charset = charset || 'UTF-8';
         var file = Cc['@mozilla.org/file/directory_service;1'].getService(Ci.nsIProperties).get('TmpD', Ci.nsIFile);
 
         if (!outputext) {
@@ -173,7 +177,7 @@ var performXSL = {
             }
         }
 
-        file.append('xslresult.'+outputext);
+        file.append('xslresult.' + outputext);
         file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt('0664', 8));
 
         var foStream = Cc['@mozilla.org/network/file-output-stream;1'].createInstance(Ci.nsIFileOutputStream);
@@ -192,23 +196,22 @@ var performXSL = {
     },
     loadfile : function(file, charset) {
         if (typeof file === 'string') {
-//                        var file = this.extdir.getItemFile(this.extid, filename);
             var tempfilename = file;
-                file = Cc['@mozilla.org/file/directory_service;1']
-                                        .getService(Ci.nsIProperties)
-                                        .get('ProfD', Ci.nsILocalFile);
-                file.append(tempfilename);
+            file = Cc['@mozilla.org/file/directory_service;1'].
+                                        getService(Ci.nsIProperties).
+                                        get('ProfD', Ci.nsILocalFile);
+            file.append(tempfilename);
         }
-        if( !file.exists() ) {   // if it doesn't exist, create  // || !file.isDirectory()
-                file.create(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt('0777', 8)); // DIRECTORY_TYPE
+        if(!file.exists() ) {   // if it doesn't exist, create  // || !file.isDirectory()
+            file.create(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt('0777', 8)); // DIRECTORY_TYPE
         }
 
-        charset = (!charset) ? 'UTF-8' : charset;
+        charset = charset || 'UTF-8';
         // From http://developer.mozilla.org/en/docs/Reading_textual_data
         // First, get and initialize the converter
         var converter = Cc['@mozilla.org/intl/scriptableunicodeconverter']
                                   .createInstance(Ci.nsIScriptableUnicodeConverter);
-        converter.charset =  charset; // 'UTF-8'; // The character encoding you want, using UTF-8 here
+        converter.charset = charset; // 'UTF-8'; // The character encoding you want, using UTF-8 here
 
         // This assumes that 'file' is a variable that contains the file you want to read, as an nsIFile
         var fis = Cc['@mozilla.org/network/file-input-stream;1']
@@ -234,8 +237,11 @@ var performXSL = {
     },
     openfile : function(content, ext) {
         var filepath = this.writeFile(content, ext);
-        var win = window.open(filepath, 'xslresultswin',
-                                                            'menubar=yes,location=yes,status=yes,resizable,scrollbars,minimizable'); // chrome
+        var win = window.open(
+            filepath,
+            'xslresultswin',
+            'menubar=yes,location=yes,status=yes,resizable,scrollbars,minimizable' // chrome
+        );
     },
     // fix: add use?
     testwellformed: function(xmldoc) {
@@ -415,14 +421,16 @@ var performXSL = {
             // var charset = newDocument.characterSet;
             // var charset = 'UTF-8';
 
-            if (!hasext && typeof newDocument === 'object' && newDocument instanceof XMLDocument) {
-                extension = 'xml';
-            }
-            else if (!hasext && typeof newDocument === 'object' && newDocument instanceof HTMLDocument) {
-                extension = 'html';
-            }
-            else if (!hasext) {
-                extension = 'xml'; // How did it get here?
+            if (!hasext) {
+                if (typeof newDocument === 'object' && newDocument instanceof XMLDocument) {
+                    extension = 'xml';
+                }
+                else if (typeof newDocument === 'object' && newDocument instanceof HTMLDocument) {
+                    extension = 'html';
+                }
+                else {
+                    extension = 'xml'; // How did it get here?
+                }
             }
 
 /*
@@ -462,7 +470,7 @@ var performXSL = {
                 return;
             }
             if (!engineUndefined) {
-                  data = this.getWindowInfo(data, newDocument.contentType).content;
+                data = this.getWindowInfo(data, newDocument.contentType).content;
             }
         }
         var outputext = this.branch.getComplexValue('outputext', Ci.nsIPrefLocalizedString).data;
