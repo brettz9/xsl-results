@@ -277,8 +277,7 @@ var performXSL = {
                     var cont;
                     do {
                         cont = is.readLine(line);
-                        this.buf += line.value+'\n';
-                        // Now you can do something with line.value
+                        this.buf += line.value + '\n';
                     } while (cont);
                 }
             },
@@ -291,11 +290,9 @@ var performXSL = {
                 }
                 if (cb2) {
                     cb2(this.buf);
-                    //cb2.call(that, this.buf); // Apply 'this' to current context
                 }
                 else {
                     var wininfo = that.getWindowInfo(this.buf, 'text/xml'); // We'll treat as though the original were XML (could have been true XHTML though)
-//                    alert(wininfo.content);
                     that.getDataForXSL(wininfo.content, xsl, cbo);
                 }
             },
@@ -328,16 +325,8 @@ var performXSL = {
         }
 
         // XML content
-        //if (xslfilename.match(/^\s*$/) || (xsl !== this.defaultxsl && !xsl.match(/^\s*$/))) {
 
         this.finish(xsl, xmldata, cbo);
-
-        //progressmeter.style.display = 'none';
-        //acceptbutton.disabled = false;
-
-        //alert(xmldata);
-        // return false;
-        //}
     },
     finish : function(/* String or DOM */ stylesh, /* String */ xmldata, /* callback object*/ cbo, enginetype) {
         var parser;
@@ -433,38 +422,13 @@ var performXSL = {
                 }
             }
 
-/*
-            // Had the following default rules earlier as an attempt to follow http://www.w3.org/TR/xslt#output , but not needed with the above (though Firefox seems to ignore the rule about not considering the type as HTML if there is non-whitespace text before the HTML element
-            if (!hasext && newDocument.hasChildNodes()) {
-                n1 = newDocument.childNodes;
-                for (var i=0; i < n1.length; i++) {
-                    ndChild = n1[i];
-
-                    alert(ndChild.nodeType);
-
-                    var childlocalname = ndChild.localName.toLowerCase();
-
-                    if (ndChild.nodeType === Node.TEXT_NODE && ndChild.nodeValue.search(/\S/) !== -1) {
-                        extension = 'xml';
-                        break;
-                    }
-                    else if (ndChild.nodeType === Node.ELEMENT_NODE && childlocalname === 'html' && ndChild.namespaceURI === null) {
-                        extension = 'html';
-                        break;
-                    }
-                    extension = 'xml';
-                }
-            }
-            else if (!hasext) {
-                extension = 'xml';
-            }
-            */
             var s = new XMLSerializer();
             data = s.serializeToString(newDocument);
 
             // Hackish, but works:
-            data = data.replace('<transformiix:result xmlns:transformiix="http://www.mozilla.org/TransforMiix">', '');
-            data = data.replace('</transformiix:result>', '');
+            data = data.
+                replace('<transformiix:result xmlns:transformiix="http://www.mozilla.org/TransforMiix">', '').
+                replace('</transformiix:result>', '');
             if (data === '') {
                 alert(this.strbundle.getString('extensions.xslresults.err.nocontent'));
                 return;
