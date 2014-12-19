@@ -6,7 +6,8 @@
     <em:name>XSL Results</em:name>
     <em:version>2.0.0</em:version>
     <em:creator>Brett Zamir</em:creator>
-	<em:homepageURL>http://github.com/brettz9/xsl-results</em:homepageURL>
+    <em:type>2</em:type>
+    <em:homepageURL>http://github.com/brettz9/xsl-results</em:homepageURL>
     <em:description>Display the results of an XSL transformation</em:description>
 
     <!-- CONTRIBUTORS -->
