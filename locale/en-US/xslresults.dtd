@@ -5,8 +5,6 @@
 <!ENTITY update_xml_pre "Update XML">
 <!ENTITY update_xml_pre2 "(pre-stylesheet)">
 
-<!ENTITY applyingXSLT "Applying XSLT">
-
 <!ENTITY xslresults-viewsource.contextmenu.label "View Source (original XML) as Text">
 <!ENTITY xslresults-viewsourceTB.contextmenu.label "View Source (original XML) in Textbox">
 <!ENTITY xslresults-viewsourcePlain.contextmenu.label "View Source (original XML) as XML">
