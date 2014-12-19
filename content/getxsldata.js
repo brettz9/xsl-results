@@ -196,7 +196,7 @@ var executeXSL = {
         alert(xqueries[i].nodeValue);
         }
         */
-        $('xmlSitePref.xsl').value = xsl.nodeValue.replace(/\\\\n/g, '\n');
+        $('xmlSitePref.xsl').value = xsl.value.replace(/\\\\n/g, '\n');
         //*/
         //$('treechildren');
         this.updateURL(url);
