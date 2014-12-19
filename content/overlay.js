@@ -46,7 +46,6 @@ var xslresults = {
         // the path may use forward slash ('/') as the delimiter
         this.extdir = em.getInstallLocation(this.extid);
 
-        var fURL = [];
         this.prefs = this.performXSL.prefs;
         // This branch must be set in both the properties file and prefs js file: http://developer.mozilla.org/en/docs/Code_snippets:Preferences#nsIPrefLocalizedString
         this.branch = this.performXSL.branch;
@@ -322,7 +321,7 @@ var xslresults = {
         this.performXSL.getPrestyleDoc(href, null, null, 'UTF-8', cb0, true); // window.content.document.characterSet
     },
     // Not in use (probably should transfer option for putting data in textbox to above
-    onViewResultantSourceTextbox: function(e) {
+    onViewResultantSourceTextbox: function() {
         var wininfo = this.performXSL.getWindowContent(window);
         var data = wininfo.content;
         
@@ -340,7 +339,7 @@ var xslresults = {
         // From chrome://browser/content/browser.xul
         BrowserViewSourceOfDocument(content.document);
     },
-    onMenuItemCommand: function(e) {
+    onMenuItemCommand: function() {
         // Open and focus on query window, sending the current document and the URL Class loader data
         var wininfo = this.performXSL.getWindowContent(window);
         var ctype = wininfo.ctype;

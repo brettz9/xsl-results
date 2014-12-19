@@ -1,5 +1,5 @@
 /*globals Components, XMLSerializer, DOMParser, XSLTProcessor, HTMLDocument, XMLDocument, XPathResult*/
-/*jslint vars:true*/
+/*jslint vars:true, bitwise:true*/
 (function () {'use strict';
 
 var Cc = Components.classes;
@@ -174,11 +174,11 @@ var performXSL = {
         }
 
         file.append('xslresult.'+outputext);
-        file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0664);
+        file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt('0664', 8));
 
         var foStream = Cc['@mozilla.org/network/file-output-stream;1'].createInstance(Ci.nsIFileOutputStream);
                 // use 0x02 | 0x10 to open file for appending.
-        foStream.init(file, 0x02 | 0x08 | 0x20, 0664, 0); // write, create, truncate
+        foStream.init(file, 0x02 | 0x08 | 0x20, parseInt('0664', 8), 0); // write, create, truncate
         var os = Cc['@mozilla.org/intl/converter-output-stream;1'].createInstance(Ci.nsIConverterOutputStream);
         os.init(foStream, charset, 0, 0x0000);
 // This assumes that foStream is the nsIOutputStream you want to write to
@@ -200,7 +200,7 @@ var performXSL = {
                 file.append(tempfilename);
         }
         if( !file.exists() ) {   // if it doesn't exist, create  // || !file.isDirectory()
-                file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0777); // DIRECTORY_TYPE
+                file.create(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt('0777', 8)); // DIRECTORY_TYPE
         }
 
         charset = (!charset) ? 'UTF-8' : charset;
@@ -413,7 +413,7 @@ var performXSL = {
 
             //********* This is the correct form to use, but the file writing stream doesn't see to like it in some cases--see notes below ************
             // var charset = newDocument.characterSet;
-            var charset = 'UTF-8';
+            // var charset = 'UTF-8';
 
             if (!hasext && typeof newDocument === 'object' && newDocument instanceof XMLDocument) {
                 extension = 'xml';
@@ -505,6 +505,6 @@ var performXSL = {
 };
 
 // EXPORT
-this.performXSL = performXSL;
+window.performXSL = performXSL;
 
 }());
