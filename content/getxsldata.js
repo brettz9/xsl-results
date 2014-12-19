@@ -1,4 +1,4 @@
-/*globals performXSL, Components, XMLSerializer, DOMParser, XSLTProcessor, XPathResult*/
+/*globals performXSL, AddonManager, Components, XMLSerializer, DOMParser, XSLTProcessor, XPathResult*/
 /*jslint vars:true, bitwise:true*/
 'use strict';
 var Cc = Components.classes;
@@ -373,7 +373,7 @@ var executeXSL = {
         var extid = 'xslresults@brett.zamir'; // the extension's id from install.rdf
         Components.utils['import']('resource://gre/modules/AddonManager.jsm');
         // the path may use forward slash ('/') as the delimiter
-        var that = this;
+        
         AddonManager.getAddonByID(extid, function (addon) {
             that.addon = addon;
             $('helppanel').setAttribute('src', that.getUrlSpec('readme.xhtml'));

@@ -1,4 +1,4 @@
-/*globals Components, XMLSerializer, DOMParser, XSLTProcessor, HTMLDocument, XMLDocument, XPathResult*/
+/*globals AddonManager, Components, XMLSerializer, DOMParser, XSLTProcessor, HTMLDocument, XMLDocument, XPathResult*/
 /*jslint vars:true, bitwise:true*/
 (function () {'use strict';
 

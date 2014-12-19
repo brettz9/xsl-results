@@ -1,9 +1,6 @@
-/*global performXSL, BrowserViewSourceOfDocument, Components, DOMParser, XPathResult*/
+/*global performXSL, content, BrowserViewSourceOfDocument, AddonManager, Components, DOMParser, XPathResult*/
 /*jslint vars:true*/
 var xslresults = (function () {'use strict';
-
-var Cc = Components.classes;
-var Ci = Components.interfaces;
 
 var $ = function (id, doc) {
     if (!doc) {
@@ -180,20 +177,7 @@ var xslresults = {
               buf = buf.replace(/<!DOCTYPE[^>\[]*\[[^\]]*\]>/g, '').replace(/<!DOCTYPE[^>]*>/g, '');
             }
             // 2) Use stylesheet to get raw XSL
-            var xslt2re = /<\?xml-stylesheet[^>]*?\s+(href\s*=\s*['"]([^\s]+)['"]\s+)?type\s*=\s*['"](application\/xslt\+xml|text\/xsl)['"]\s*[^>]*?(href=\s*['"]([^\s]+)['"])?[^>]*\?>/g;
-            var xslt2prinst;
-            var stylesheet = false;
             var stylesheetURL = false;
-            while ((xslt2prinst = xslt2re.exec(buf)) != null) {
-                stylesheet = xslt2prinst[2] || xslt2prinst[5] || false;
-                if (stylesheet) {
-                        stylesheetURL = stylesheet;
-                        if (!stylesheet.match(/^(https?|file):\/\//)) {
-                                stylesheetURL = window.getBrowser().selectedBrowser.webNavigation.currentURI.resolve(stylesheet);
-                        }
-                        break;
-                }
-            }
             var cb1 = function (stylesheet) {
                 // 3) apply XSL to XML
 //                          alert(stylesheet);
