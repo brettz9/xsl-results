@@ -113,8 +113,8 @@ var performXSL = {
             // content = content.replace(/(\<[^>]*)(\$)([^>]*\>)/g, '$1>'); // was overly aggressive
         }
 
-        if ((ctype === 'xml' && this.prefs.getBoolPref('extensions.xslresults.xmlstripdtd')) ||
-                (ctype === 'html' && this.prefs.getBoolPref('extensions.xslresults.htmlstripdtd'))) {
+        if ((ctype === 'xml' && this.branch.getBoolPref('xmlstripdtd')) ||
+                (ctype === 'html' && this.branch.getBoolPref('htmlstripdtd'))) {
             content = content.replace(/<!DOCTYPE[^>\[]*\[[^\]]*\]>/, '');
             content = content.replace(/<!DOCTYPE[^>]*>/, '');
         }
@@ -309,7 +309,7 @@ var performXSL = {
         var cbo = {
             processResult : function (content, ext) {
                 $('xmloutput').value = content;
-				var where = this.prefs.getCharPref('extensions.xslresults.open_where');
+				var where = this.branch.getCharPref('open_where');
                 if (where === 'open_window') {
                     this.openfile(content, ext);
                 }
@@ -392,7 +392,7 @@ var performXSL = {
         }
         var engineUndefined = false;
         if (enginetype === undefined) {
-            enginetype = this.prefs.getIntPref('extensions.xslresults.enginetype');
+            enginetype = this.branch.getIntPref('enginetype');
             engineUndefined = true;
         }
         var data;

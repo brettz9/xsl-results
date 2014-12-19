@@ -87,8 +87,8 @@ var xslresults = {
                     // If user wants to auto-apply XSLT 2.0 processing instructions, do so
 
                     /*
-                    if (that.prefs.getBoolPref('extensions.xslresults.applyXSLT') ||
-                            that.prefs.getBoolPref('extensions.xslresults.applyXSLT2')) {
+                    if (that.branch.getBoolPref('applyXSLT') ||
+                            that.branch.getBoolPref('applyXSLT2')) {
                     }
                     */
     /*                           if (PHP.in_array(e.originalTarget.contentType,  // We make the faulty assumption that the result will be XML (so we don't need to test every single HTML document the browser loads
@@ -101,15 +101,15 @@ var xslresults = {
                                     ['xml', 'rdf', 'xhtml', 'xsl', 'svg']
                       )) {
                         var i, pis;
-                        if (that.prefs.getBoolPref('extensions.xslresults.applyXSLT') ||
-                                that.prefs.getBoolPref('extensions.xslresults.applyXSLT2')
+                        if (that.branch.getBoolPref('applyXSLT') ||
+                                that.branch.getBoolPref('applyXSLT2')
                             ) {
     //                                    var xsl = '';
 
                             var cb0 = function (buf) { // Gets XML
                                 var wininfo = that.performXSL.getWindowContent(window);
-                                if ((wininfo.ctype === 'xml' && that.prefs.getBoolPref('extensions.xslresults.xmlstripdtd')) ||
-                                            (wininfo.ctype=== 'html' && that.prefs.getBoolPref('extensions.xslresults.htmlstripdtd'))) {
+                                if ((wininfo.ctype === 'xml' && that.branch.getBoolPref('xmlstripdtd')) ||
+                                            (wininfo.ctype=== 'html' && that.branch.getBoolPref('htmlstripdtd'))) {
                                     buf = buf.replace(/<!DOCTYPE[^>\[]*\[[^\]]*\]>/g, '').replace(/<!DOCTYPE[^>]*>/g, '');
                                 }
                                 pis = that.docEvaluateArray('/processing-instruction("xml-stylesheet")', e.originalTarget);
@@ -120,9 +120,9 @@ var xslresults = {
                                     type = results[3];
 
                                     if ((PHP.in_array(type, ['text/xsl', 'application/xml', 'application/xslt+xml']) &&
-                                          that.prefs.getBoolPref('extensions.xslresults.applyXSLT')) ||
+                                          that.branch.getBoolPref('applyXSLT')) ||
                                             (type === 'application/xslt+xml' &&
-                                              that.prefs.getBoolPref('extensions.xslresults.applyXSLT2'))
+                                              that.branch.getBoolPref('applyXSLT2'))
                                         ) {
 
                                         results2 = pis[0].nodeValue.match(/(^|\s+)href\s*=\s*(['"])([^'"]*)\2/);
@@ -138,7 +138,7 @@ var xslresults = {
                                                           ext = 'html';
                                                     }*/
                                                     /*
-                    var where = that.prefs.getBoolPref('extensions.xslresults.open_where');
+                    var where = that.branch.getBoolPref('open_where');
                                                     if (where === 'open_window') {
                                                           that.openfile(data, ext); // works to open a new window
                                                     }
@@ -219,7 +219,7 @@ var xslresults = {
                               '<body><textarea cols="100%" rows="40">'+data+'</textarea></body></html>';
                   ext = 'html';
             }
-			var where = that.prefs.getCharPref('extensions.xslresults.open_where');
+			var where = that.branch.getCharPref('open_where');
             if (where === 'open_window') {
                   that.performXSL.openfile(data, ext); // works to open a new window
             }
@@ -250,8 +250,8 @@ var xslresults = {
         var wininfo = that.performXSL.getWindowContent(window);
 
         var cb0 = function (buf) { // Gets XML
-            if ((wininfo.ctype === 'xml' && that.prefs.getBoolPref('extensions.xslresults.xmlstripdtd')) ||
-                  (wininfo.ctype=== 'html' && that.prefs.getBoolPref('extensions.xslresults.htmlstripdtd'))) {
+            if ((wininfo.ctype === 'xml' && that.branch.getBoolPref('xmlstripdtd')) ||
+                  (wininfo.ctype=== 'html' && that.branch.getBoolPref('htmlstripdtd'))) {
               buf = buf.replace(/<!DOCTYPE[^>\[]*\[[^\]]*\]>/g, '').replace(/<!DOCTYPE[^>]*>/g, '');
             }
             // 2) Use stylesheet to get raw XSL
@@ -292,7 +292,7 @@ var xslresults = {
                             data = '<textarea cols="100%" rows="40">'+data+'</textarea>';
                             ext = 'html';
                         }
-						var where = that.prefs.getBoolPref('extensions.xslresults.open_where');
+						var where = that.branch.getBoolPref('open_where');
                         if (where === 'open_window') {
                             this.openfile(data, ext); // works to open a new window
                         }

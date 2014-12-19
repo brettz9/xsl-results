@@ -325,13 +325,14 @@ var executeXSL = {
         this.prefs0 = Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefBranch);
         this.prefs = Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService);
         // This branch must be set in both the properties file and prefs js file: http://developer.mozilla.org/en/docs/Code_snippets:Preferences#nsIPrefLocalizedString
+        this.branch0 = this.prefs.getBranch('extensions.xslresults.');
         this.branch = this.prefs.getBranch('extensions.xslresults.');
 
         $('outputext').value = this.branch.getComplexValue('outputext', Ci.nsIPrefLocalizedString).data;
 
         // Might be able to change some of these to @persist?
-        var outerh = this.prefs0.getIntPref('extensions.xslresults.window.outer.height');
-        var outerw = this.prefs0.getIntPref('extensions.xslresults.window.outer.width');
+        var outerh = this.branch0.getIntPref('window.outer.height');
+        var outerw = this.branch0.getIntPref('window.outer.width');
         if (outerh > 0) {
             window.outerHeight = outerh;
         }
@@ -339,8 +340,8 @@ var executeXSL = {
             window.outerWidth = outerw;
         }
 
-        var outputw = this.prefs0.getIntPref('extensions.xslresults.xmlcontentbox.width');
-        var outputw2 = this.prefs0.getIntPref('extensions.xslresults.xmloutputbox.width');
+        var outputw = this.branch0.getIntPref('xmlcontentbox.width');
+        var outputw2 = this.branch0.getIntPref('xmloutputbox.width');
         if (outputw > 0) {
             $('xmlcontentbox').minwidth = outputw;
             $('xmlcontentbox').maxwidth = outputw;
@@ -352,22 +353,22 @@ var executeXSL = {
             $('xmloutputbox').width = outputw2;
         }
 
-        if (this.prefs0.getIntPref('extensions.xslresults.textbox.xsl.width') > 0) {
-            $('xslcontentbox').width = this.prefs0.getIntPref('extensions.xslresults.textbox.xsl.width');
+        if (this.branch0.getIntPref('textbox.xsl.width') > 0) {
+            $('xslcontentbox').width = this.branch0.getIntPref('textbox.xsl.width');
         }
-        if (this.prefs0.getIntPref('extensions.xslresults.textbox.xml.width') > 0) {
-            $('xmlcontentbox').width = this.prefs0.getIntPref('extensions.xslresults.textbox.xml.width');
+        if (this.branch0.getIntPref('textbox.xml.width') > 0) {
+            $('xmlcontentbox').width = this.branch0.getIntPref('textbox.xml.width');
         }
 
-        $('extensions.xslresults.enginetype').selectedIndex = this.prefs.getIntPref('extensions.xslresults.enginetype');
+        $('extensions.xslresults.enginetype').selectedIndex = this.branch.getIntPref('enginetype');
 
 
-        $('extensions.xslresults.applyXSLT').checked = this.prefs.getBoolPref('extensions.xslresults.applyXSLT');
-        $('extensions.xslresults.applyXSLT2').checked = this.prefs.getBoolPref('extensions.xslresults.applyXSLT2');
+        $('extensions.xslresults.applyXSLT').checked = this.branch.getBoolPref('applyXSLT');
+        $('extensions.xslresults.applyXSLT2').checked = this.branch.getBoolPref('applyXSLT2');
                 
-        $('extensions.xslresults.xmlstripdtd').checked = this.prefs.getBoolPref('extensions.xslresults.xmlstripdtd');
-        $('extensions.xslresults.htmlstripdtd').checked = this.prefs.getBoolPref('extensions.xslresults.htmlstripdtd');
-        $('extensions.xslresults.open_where').selectedItem = $(this.prefs.getCharPref('extensions.xslresults.open_where'));
+        $('extensions.xslresults.xmlstripdtd').checked = this.branch.getBoolPref('xmlstripdtd');
+        $('extensions.xslresults.htmlstripdtd').checked = this.branch.getBoolPref('htmlstripdtd');
+        $('extensions.xslresults.open_where').selectedItem = $(this.branch.getCharPref('open_where'));
         if ($('extensions.xslresults.open_where').selectedItem === $('open_textbox_only')) {
             $('outputext').disabled = true;
         }
@@ -508,11 +509,11 @@ var executeXSL = {
     outputext : function(e) {
         var temp1 = Cc['@mozilla.org/pref-localizedstring;1'].createInstance(Ci.nsIPrefLocalizedString);
         temp1.data = e.target.value;
-        this.prefs.setComplexValue('extensions.xslresults.outputext', Ci.nsIPrefLocalizedString, temp1);
+        this.branch.setComplexValue('outputext', Ci.nsIPrefLocalizedString, temp1);
     },
     processDTD : function (contenttype) {
-        if ((contenttype === 'xml' && this.prefs.getBoolPref('extensions.xslresults.xmlstripdtd')) ||
-            (contenttype === 'html' && this.prefs.getBoolPref('extensions.xslresults.htmlstripdtd'))) {
+        if ((contenttype === 'xml' && this.branch.getBoolPref('xmlstripdtd')) ||
+            (contenttype === 'html' && this.branch.getBoolPref('htmlstripdtd'))) {
             this.stripDTD(); // Must come after line above
         }
         else if ($('xmlcontent').value.match(/<!DOCTYPE/)) {// give the choice if the preferences don't strip and if there is a doctype to strip
@@ -561,21 +562,21 @@ var executeXSL = {
         // Remember XSL box contents for next time
         var temp = Cc['@mozilla.org/pref-localizedstring;1'].createInstance(Ci.nsIPrefLocalizedString);
         temp.data = $('xslcontent').value;
-        this.prefs.setComplexValue('extensions.xslresults.defaultxsl', Ci.nsIPrefLocalizedString, temp);
+        this.branch.setComplexValue('defaultxsl', Ci.nsIPrefLocalizedString, temp);
 
         // Remember Window and splitter positions
-        this.prefs0.setIntPref('extensions.xslresults.window.outer.height', window.outerHeight);
-        this.prefs0.setIntPref('extensions.xslresults.window.outer.width', window.outerWidth);
-        this.prefs0.setIntPref('extensions.xslresults.xmlcontentbox.width', $('xmlcontentbox').width);
-        this.prefs0.setIntPref('extensions.xslresults.xmloutputbox.width', $('xmloutputbox').width);
+        this.branch0.setIntPref('window.outer.height', window.outerHeight);
+        this.branch0.setIntPref('window.outer.width', window.outerWidth);
+        this.branch0.setIntPref('xmlcontentbox.width', $('xmlcontentbox').width);
+        this.branch0.setIntPref('xmloutputbox.width', $('xmloutputbox').width);
 
         var xslbox_width = $('xslcontentbox').width;
         var xmlbox_width = $('xmlcontentbox').width;
         if (xslbox_width !== undefined) {
-            this.prefs0.setIntPref('extensions.xslresults.textbox.xsl.width', xslbox_width);
+            this.branch0.setIntPref('textbox.xsl.width', xslbox_width);
         }
         if (xmlbox_width !== undefined) {
-            this.prefs0.setIntPref('extensions.xslresults.textbox.xml.width', xmlbox_width);
+            this.branch0.setIntPref('textbox.xml.width', xmlbox_width);
         }
     },
     doTransform : function() {
@@ -604,17 +605,17 @@ var executeXSL = {
         switch (e.target.nodeName) {
             case 'checkbox':
                 // Apparently hasn't changed yet, so use the opposite
-                this.prefs.setBoolPref(e.target.id, !e.target.checked);
+                this.branch.setBoolPref(e.target.id.replace(/extensions.xslresults./, ''), !e.target.checked);
                 break;
             case 'radio':
                 var radioid;
                 var result = e.target.id.match(/^_([0-9])+-(.*)$/);
                 if (result !== null) {
                     radioid = result[2]; // Extract preference name
-                    this.prefs.setIntPref(radioid, result[1]);
+                    this.branch.setIntPref(radioid.replace(/extensions.xslresults./, ''), result[1]);
                 }
                 else {
-                    this.prefs.setCharPref(e.currentTarget.id, e.target.id);
+                    this.branch.setCharPref(e.currentTarget.id.replace(/extensions.xslresults./, ''), e.target.id);
                 }
                 break;
             default:
@@ -623,7 +624,7 @@ var executeXSL = {
     },
     applyXSLT : function (e) {
         this.setprefs(e);
-        if (this.prefs.getBoolPref('extensions.xslresults.applyXSLT') === true) {
+        if (this.branch.getBoolPref('applyXSLT') === true) {
     //                        $('extensions.xslresults.applyXSLT2').checked = true;
                 $('extensions.xslresults.applyXSLT2').disabled = true;
         }
@@ -633,13 +634,13 @@ var executeXSL = {
         return false;
     },
     resetdefaults: function() {
-        this.prefs0.setIntPref('extensions.xslresults.enginetype', 0);
+        this.branch0.setIntPref('enginetype', 0);
         $('extensions.xslresults.enginetype').selectedIndex = 0;
-        this.prefs.setBoolPref('extensions.xslresults.xmlstripdtd', true);
-        this.prefs.setBoolPref('extensions.xslresults.htmlstripdtd', true);
-        this.prefs.setCharPref('extensions.xslresults.open_where', 'open_tab');
-        this.prefs.setBoolPref('extensions.xslresults.applyXSLT', false);
-        this.prefs.setBoolPref('extensions.xslresults.applyXSLT2', true);
+        this.branch.setBoolPref('xmlstripdtd', true);
+        this.branch.setBoolPref('htmlstripdtd', true);
+        this.branch.setCharPref('open_where', 'open_tab');
+        this.branch.setBoolPref('applyXSLT', false);
+        this.branch.setBoolPref('applyXSLT2', true);
                 
         $('extensions.xslresults.xmlstripdtd').checked = true;
         $('extensions.xslresults.htmlstripdtd').checked = true;
@@ -650,14 +651,14 @@ var executeXSL = {
                 
         $('outputext').value = 'xml';
 
-        this.prefs.setIntPref('extensions.xslresults.xmlcontentbox.width', 0);
-        this.prefs.setIntPref('extensions.xslresults.xmloutputbox.width', 0);
+        this.branch.setIntPref('xmlcontentbox.width', 0);
+        this.branch.setIntPref('xmloutputbox.width', 0);
 
         // Remember XSL box contents for next time
         $('xslcontent').value = this.defaultxsl;
         var temp = Cc['@mozilla.org/pref-localizedstring;1'].createInstance(Ci.nsIPrefLocalizedString);
         temp.data = this.defaultxsl;
-        this.prefs.setComplexValue('extensions.xslresults.defaultxsl', Ci.nsIPrefLocalizedString, temp);
+        this.branch.setComplexValue('defaultxsl', Ci.nsIPrefLocalizedString, temp);
 
     },
     checkForDups : function (doc) {
