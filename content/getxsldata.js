@@ -376,9 +376,8 @@ var executeXSL = {
         var that = this;
         AddonManager.getAddonByID(extid, function (addon) {
             that.addon = addon;
+            $('helppanel').setAttribute('src', that.getUrlSpec('readme.xhtml'));
         });
-
-        $('helppanel').setAttribute('src', this.getUrlSpec('readme.xhtml'));
 
         this.processDTD(ctype);
                 
