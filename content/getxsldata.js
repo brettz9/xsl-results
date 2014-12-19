@@ -584,7 +584,7 @@ var executeXSL = {
         }
     },
     resetdefaults: function() {
-        this.branch0.setIntPref('enginetype', 0);
+        this.branch0.setIntPref('enginetype', 1);
         $('extensions.xslresults.enginetype').selectedIndex = 0;
         this.branch.setBoolPref('xmlstripdtd', true);
         this.branch.setBoolPref('htmlstripdtd', true);
