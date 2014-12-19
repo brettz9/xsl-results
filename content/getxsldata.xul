@@ -50,7 +50,6 @@
 				</groupbox>
 				<label control="xmlcontent" value="&xmlcontent.value;"/>
 				<textbox flex="1" id="xmlcontent" multiline="true"/>
-				<!--<button oncommand="executeXSL.converttohtml();" label="&converttohtm;" />-->
 				<button id="stripdtd" class="invisible" oncommand="executeXSL.stripDTD();" label="&stripDTD;" />
 			</vbox>
 			<splitter id="textboxsplitter2" />
