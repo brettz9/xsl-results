@@ -379,6 +379,7 @@ var executeXSL = {
             $('helppanel').setAttribute('src', that.getUrlSpec('readme.xhtml'));
         });
 
+        var ctype = window.arguments[3];
         this.processDTD(ctype);
                 
         var defaultxsl = this.branch.getComplexValue('defaultxsl', Ci.nsIPrefLocalizedString).data;
@@ -399,7 +400,7 @@ var executeXSL = {
         var progressmeter = $('progressmeter');
         progressmeter.style.display = 'none'; // In case CSS didn't work...
 
-        // var ctype = window.arguments[3];
+        
         // var contenttype = window.arguments[4]; // Not really needed
 
         this.strbundle = $('xslresults-strings');
