@@ -1,5 +1,5 @@
 Changes to 2.0.0
-- Update for FF (but remove Java/Saxon (XSLT 2) functionality/dependency)
+- Update to support latest FF (but remove Java/Saxon (XSLT 2) functionality/dependency)
 
 Changes to 1.7.2
 - Very small fix to ensure that output extension control is disabled if user opts for textbox only
