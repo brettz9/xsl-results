@@ -1,3 +1,0 @@
-1. User requested support for <xsl:include href="another.xsl"/> where another.xsl is in the same directory (currently gives NS_ERROR_DOM_BAD_URI)
-2. Character set fixes
-3. Make restartless

@@ -12,3 +12,8 @@ versions of Saxon not being open source anyways), I decided to
 strip this functionality so I could at least get the add-on to
 work again for XSLT 1.0.
 
+# To-dos
+
+1. User requested support for `<xsl:include href="another.xsl"/>` where another.xsl is in the same directory (currently gives NS_ERROR_DOM_BAD_URI)
+1. Character set fixes
+1. Make restartless
